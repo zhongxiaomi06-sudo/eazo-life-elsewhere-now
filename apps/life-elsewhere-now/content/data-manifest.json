@@ -1,8 +1,8 @@
 {
   "manifestVersion": 1,
   "appId": "life-elsewhere-now",
-  "buildVersion": "1.0.0-rc.3",
-  "contentVersion": "2026-08-28.wdi.3",
+  "buildVersion": "1.0.0-rc.4",
+  "contentVersion": "2026-08-28.wdi.4",
   "schemaVersions": {
     "fixture": 1,
     "rightsLedger": 1,
@@ -23,8 +23,8 @@
     },
     {
       "path": "rights-ledger.tsv",
-      "sha256": "2210f9b9ce1b1017f239591924b0054828c76d948255f334d498df730e841759",
-      "bytes": 1679,
+      "sha256": "e14c8ea3f7e81cf709d7494de4a95f24be58d6770f1c4be5e017dd7dab303662",
+      "bytes": 1836,
       "contentType": "text/tab-separated-values",
       "licenseId": "LEDGER",
       "sourceIds": [
@@ -69,6 +69,16 @@
       "licenseId": "PROJECT-GENERATED",
       "sourceIds": [
         "life-elsewhere-now:og-v4.png"
+      ]
+    },
+    {
+      "path": "og-v5.png",
+      "sha256": "4d8f0e1ac72d59d43c42edc78a0de3e0c882b841f2851c5f12f0c1523856cd41",
+      "bytes": 2252433,
+      "contentType": "image/png",
+      "licenseId": "PROJECT-GENERATED",
+      "sourceIds": [
+        "life-elsewhere-now:og-v5.png"
       ]
     },
     {
@@ -132,5 +142,5 @@
       "outputSha256": "d791b6dcfdb7cccf98f1be1326acc015554ca974a3f16d86fb3a87ec947e8cb4"
     }
   ],
-  "totalBytes": 8411375
+  "totalBytes": 10663965
 }

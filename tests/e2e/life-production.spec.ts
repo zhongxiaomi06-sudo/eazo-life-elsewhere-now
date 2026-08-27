@@ -22,9 +22,39 @@ test('production path discloses synthetic content and creates a pair', async ({ 
   await expect(page.getByText('national estimate · not a personal prediction')).toBeVisible();
   await page.getByRole('button', { name: '＋ Save for a pair' }).click();
   await expect(page.getByRole('status')).toContainText('Saved on this device.');
+  await expect(page.getByText('YOUR CONTACT SHEET')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Open pair ↗' })).toBeVisible();
   await page.getByRole('button', { name: 'Pair 1' }).click();
   await expect(page.getByRole('heading', { name: 'Difference without a scoreboard.' })).toBeVisible();
   await expect(page.getByText(/Comparable context|No ranking shown/)).toBeVisible();
+});
+
+test('encounter loop supports keyboard, touch swipe and direct filmstrip navigation', async ({ page }) => {
+  await page.getByRole('button', { name: 'Begin an encounter ↗' }).click();
+  const frame = page.getByRole('group', { name: /Encounter 1 of 10/ });
+  await expect(frame).toBeVisible();
+
+  await frame.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByText('ELSEWHERE / FRAME 02')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Next scene' })).toBeEnabled();
+
+  const secondFrame = page.getByRole('group', { name: /Encounter 2 of 10/ });
+  const box = await secondFrame.boundingBox();
+  expect(box).not.toBeNull();
+  await secondFrame.dispatchEvent('pointerdown', { pointerId: 7, clientX: box!.x + box!.width * .8, clientY: box!.y + box!.height * .5 });
+  await secondFrame.dispatchEvent('pointerup', { pointerId: 7, clientX: box!.x + box!.width * .2, clientY: box!.y + box!.height * .5 });
+  await expect(page.getByText('ELSEWHERE / FRAME 03')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Next scene' })).toBeEnabled();
+
+  await page.getByRole('button', { name: 'Go to encounter 7' }).click();
+  await expect(page.getByText('ELSEWHERE / FRAME 07')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Next scene' })).toBeEnabled();
+  await page.getByRole('button', { name: 'Previous scene' }).click();
+  await expect(page.getByText('ELSEWHERE / FRAME 06')).toBeVisible();
+
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
 });
 
 test('method ledger exposes complete source and Eazo runtime information', async ({ page }) => {
