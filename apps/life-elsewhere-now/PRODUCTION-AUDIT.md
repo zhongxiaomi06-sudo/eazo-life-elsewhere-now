@@ -30,15 +30,15 @@ The build is feature-complete for the nine Product 3 requirements and has passed
 
 - Vitest: 9/9 Product 3 requirement tests passed.
 - Playwright: 10/10 tests passed across Pixel 7 Chromium and iPhone 12 WebKit profiles (6 Product 3 production-path checks plus 4 shared mobile/accessibility smoke checks).
-- Visual browser audit: 1440 px desktop plus 375, 390, and 430 px mobile views passed; home CTA, encounter card, fixed bottom navigation, touch targets, and view-reset behavior were exercised with zero horizontal overflow.
-- Manifest: 7 files, 3,157,457 bytes, including the versioned social cover and compressed NASA Earth Observatory night-light composite; below the 25 MB mandatory-cache cap.
+- Visual browser audit: 1440 px desktop plus 375, 390, and 430 px mobile views passed; home CTA, encounter card, fixed bottom navigation, touch targets, and view-reset behavior were exercised with zero horizontal overflow. The 2026-08-27 contrast pass adds a mobile-specific three-cut visual rail and keeps the primary CTA below the fold-safe cinematic panel.
+- Manifest: 9 files, including the versioned social covers, compressed NASA Earth Observatory night-light composite, and a 535,794-byte edited/muted NASA JSC ISS night loop; below the 25 MB mandatory-cache cap.
 - Production build: JavaScript gzip 289.79 KB, CSS gzip 4.73 KB; below the 350 KB first-view JavaScript budget.
 - Lint: zero warnings for the full workspace at the time of the Product 3 run.
 - Product 3 typecheck and production build: passed.
 
 ## Detailed design audit
 
-The redesigned UI uses a nocturnal editorial-atlas system rather than dashboard cards: forest-black space, warm-paper type, coral and acid-lime signals, a credited night-light world composite without political borders, and deterministic abstract portraits. Mobile is a distinct composition—not a scaled desktop page—with a 32dvh visual, one-screen lens/CTA row, 68 px safe-area bottom navigation, full-width encounter actions, and automatic scroll reset between views. Encounter pages preserve a clear reading order: synthetic scene, region/time, ordinary moment, generation limit, evidence, then actions. Comparison deliberately avoids high/low arrows and explains comparability.
+The redesigned UI uses a nocturnal editorial-atlas system rather than dashboard cards: forest-black space, warm-paper type, coral and acid-lime signals, a credited night-light world composite without political borders, a short NASA JSC orbital time-lapse, and deterministic abstract portraits. The contrast system deliberately juxtaposes macro/micro, motion/stillness, light/dark, near/far, and three tiny everyday fragments. Mobile is a distinct composition—not a scaled desktop page—with a 40dvh cinematic panel, three-column contrast rail, one-screen lens/CTA row, 68 px safe-area bottom navigation, full-width encounter actions, and automatic scroll reset between views. Reduced-motion and data-saver users receive the existing static Earth poster instead of autoplay video. Encounter pages preserve a clear reading order: synthetic scene, region/time, ordinary moment, generation limit, evidence, then actions. Comparison deliberately avoids high/low arrows and explains comparability.
 
 Objective checks passed: 56 px primary/action height, visible focus outlines, skip link, live-region feedback, reduced-motion media query, safe-area viewport configuration, no horizontal overflow at 375/390/430 px, readable source ledger, local data reset, offline state, and Web fallback. The generated V2 social card matches the finished palette and is recorded separately from the NASA visual source in the rights ledger.
 
@@ -47,6 +47,8 @@ Human-only checks remain deliberately unsigned: `aestheticLevel=enjoy`, North Am
 ## Known technical warning
 
 Vite externalizes Node `crypto`/`buffer` paths reachable inside `@eazo/sdk 0.22.8`. The official share surface works through the SDK capability path and the build stays within budget, but the warning should be rechecked against the next SDK release. Browser warnings from unrelated installed extensions are excluded from app results.
+
+The expanded contrast and motion source audit is recorded in `VISUAL-RESEARCH-2026-08-27.md`. It separates viral editing-pattern research from production-media licensing and records the exact NASA source and local transform.
 
 ## Stage decision
 

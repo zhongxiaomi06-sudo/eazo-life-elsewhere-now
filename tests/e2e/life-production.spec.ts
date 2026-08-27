@@ -9,6 +9,9 @@ test('production path discloses synthetic content and creates a pair', async ({ 
   await expect(page.getByRole('heading', { name: 'Right now, elsewhere feels normal.' })).toBeVisible();
   await expect(page.getByText('Every person is synthetic.')).toBeVisible();
   await expect(page.getByText('No real identity. No live tracking. No location collected.')).toBeVisible();
+  await expect(page.getByText('ORBIT / 10 SEC')).toBeVisible();
+  await expect(page.getByText('LIVE-FEEL · NOT LIVE')).toBeVisible();
+  await expect(page.locator('.contrast-cuts .cut')).toHaveCount(3);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1);
 

@@ -29,6 +29,11 @@ export function App(){
   const comparison=collection.find(item=>item.id!==scene.id) ?? scenes[(position+1)%scenes.length]!;
   const comparisonResult=compareScenes(scene,comparison);
   const earthImage=`${import.meta.env.BASE_URL}earth-at-night.webp`;
+  const orbitFilm=`${import.meta.env.BASE_URL}iss-night-pulse.mp4`;
+  const [motionAllowed]=useState(()=>{
+    const saveData=(globalThis.navigator as Navigator & {connection?:{saveData?:boolean}} | undefined)?.connection?.saveData;
+    return !globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches && !saveData;
+  });
 
   useEffect(()=>{
     const onOnline=()=>setOnline(true); const onOffline=()=>setOnline(false);
@@ -57,7 +62,21 @@ export function App(){
     <main id="main" tabIndex={-1}>
       {view==='home'&&<section className="landing">
         <div className="hero-copy"><p className="section-label"><i/> A live-feeling atlas, without live tracking</p><h1>Right now,<br/><em>elsewhere</em><br/>feels normal.</h1><p className="promise">Step into one ordinary moment on the other side of the world. Pair it with another and notice difference without turning life into a ranking.</p><div className="start-row"><label>Choose your lens<select value={lens} onChange={event=>setLens(event.target.value)}><option value="everyday">Everyday rhythms</option><option value="connection">Connected life</option><option value="resources">Shared resources</option></select></label><button className="primary-action" onClick={begin}>Begin an encounter <span>↗</span></button></div><div className="truth"><strong>Every person is synthetic.</strong><span>No real identity. No live tracking. No location collected.</span></div></div>
-        <figure className="atlas-visual"><img src={earthImage} alt="NASA Earth Observatory composite of Earth at night"/><div className="night-wash"/><div className="orbit orbit-one"/><div className="orbit orbit-two"/><span className="pin p1"/><span className="pin p2"/><span className="pin p3"/><span className="pin p4"/><span className="pin p5"/><span className="pin p6"/><div className="world-caption"><span>THE WORLD, HELD LIGHTLY</span><strong>48</strong><small>reviewed scenes across 6 broad regions</small></div><figcaption>Night-light composite: NASA Earth Observatory · visual context only</figcaption></figure>
+        <figure className="atlas-visual">
+          <img src={earthImage} alt="NASA Earth Observatory composite of Earth at night"/>
+          {motionAllowed&&<video className="orbit-film" autoPlay loop muted playsInline preload="metadata" poster={earthImage} aria-hidden="true"><source src={orbitFilm} type="video/mp4"/></video>}
+          <div className="night-wash"/><div className="scanline"/>
+          <div className="film-kicker"><span><i/> ORBIT / 10 SEC</span><b>LIVE-FEEL · NOT LIVE</b></div>
+          <div className="contrast-cuts" aria-hidden="true">
+            <article className="cut dawn-cut"><small>DAWN / WEST</small><strong>06:12</strong><i/><span>A room turns warm.</span></article>
+            <article className="cut signal-cut"><small>SIGNAL / EAST</small><strong>•••</strong><div><i/><i/><i/><i/></div><span>A message arrives.</span></article>
+            <article className="cut water-cut"><small>PAUSE / SOUTH</small><strong>½</strong><i/><span>A glass waits.</span></article>
+          </div>
+          <div className="orbit orbit-one"/><div className="orbit orbit-two"/><span className="pin p1"/><span className="pin p2"/><span className="pin p3"/><span className="pin p4"/><span className="pin p5"/><span className="pin p6"/>
+          <div className="world-caption"><span>THE WORLD, HELD LIGHTLY</span><strong>48</strong><small>reviewed scenes across 6 broad regions</small></div>
+          <div className="contrast-rail" aria-hidden="true"><span><i/>LIGHT</span><span><i/>DARK</span><span><i/>NEAR</span><span><i/>FAR</span></div>
+          <figcaption>ISS night time-lapse: NASA JSC · edited, muted, visual context only</figcaption>
+        </figure>
         <aside className="edition"><span>EDITION 01 · 27 AUG 2026</span><div><strong>48</strong><small>reviewed scenes</small></div><div><strong>12</strong><small>ordinary-life themes</small></div><p>Public statistics provide context.<br/>They never predict a person.</p></aside>
       </section>}
       {view==='scene'&&<section className="encounter" aria-live="polite">

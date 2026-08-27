@@ -1,4 +1,4 @@
-const CACHE = 'elsewhere-now-v1';
+const CACHE = 'elsewhere-now-v2';
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE);
@@ -8,7 +8,7 @@ self.addEventListener('install', event => {
       .map(match => new URL(match[1], self.location.href).href)
       .filter(url => url.startsWith(self.location.origin));
     await cache.put('./', response);
-    await cache.addAll(assets);
+    await cache.addAll([...assets, './earth-at-night.webp', './iss-night-pulse.mp4']);
     await self.skipWaiting();
   })());
 });

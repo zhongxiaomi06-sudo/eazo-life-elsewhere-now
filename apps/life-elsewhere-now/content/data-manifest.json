@@ -1,8 +1,8 @@
 {
   "manifestVersion": 1,
   "appId": "life-elsewhere-now",
-  "buildVersion": "1.0.0-rc.1",
-  "contentVersion": "2026-08-27.wdi.1",
+  "buildVersion": "1.0.0-rc.2",
+  "contentVersion": "2026-08-27.wdi.2",
   "schemaVersions": {
     "fixture": 1,
     "rightsLedger": 1,
@@ -23,8 +23,8 @@
     },
     {
       "path": "rights-ledger.tsv",
-      "sha256": "4c3b34b59016e65af2190a3a13a5a738765ec63815c1e63cad5120f43b7c4e97",
-      "bytes": 1079,
+      "sha256": "d1049c1f52bc3b3cbf6f2b86c84185781920510eafcd779790b34b93285a7b27",
+      "bytes": 1522,
       "contentType": "text/tab-separated-values",
       "licenseId": "LEDGER",
       "sourceIds": [
@@ -52,6 +52,16 @@
       ]
     },
     {
+      "path": "og-v3.png",
+      "sha256": "6fbd2dad2c1dc0517ff77cac469ee22841a9da1ad25b4c13ff2e2b883bc17e46",
+      "bytes": 2265536,
+      "contentType": "image/png",
+      "licenseId": "PROJECT-GENERATED",
+      "sourceIds": [
+        "life-elsewhere-now:og-v3.png"
+      ]
+    },
+    {
       "path": "earth-at-night.webp",
       "sha256": "4d27248e84c9946dab8d6b6a02697b5a2c68dad4cd8bfc9977936601c543d535",
       "bytes": 106414,
@@ -59,6 +69,16 @@
       "licenseId": "NASA-MEDIA-GUIDELINES",
       "sourceIds": [
         "life-elsewhere-now:earth-at-night.webp"
+      ]
+    },
+    {
+      "path": "iss-night-pulse.mp4",
+      "sha256": "4e67df8926e4752c8b88f61204ebbc08bf33bebe94335cffdeb6215f2c0938a0",
+      "bytes": 535794,
+      "contentType": "video/mp4",
+      "licenseId": "NASA-MEDIA-GUIDELINES",
+      "sourceIds": [
+        "life-elsewhere-now:iss-night-pulse.mp4"
       ]
     },
     {
@@ -73,8 +93,8 @@
     },
     {
       "path": "sw.js",
-      "sha256": "eec386c2a79de0ec910874e332efcb9488a912a841107e90b5eb2ba3360f2655",
-      "bytes": 1322,
+      "sha256": "8211d50c502b470d03d762dcf4754771602aa93a8634b883bf4900fb466740b0",
+      "bytes": 1377,
       "contentType": "text/javascript",
       "licenseId": "MIT",
       "sourceIds": [
@@ -102,5 +122,5 @@
       "outputSha256": "d791b6dcfdb7cccf98f1be1326acc015554ca974a3f16d86fb3a87ec947e8cb4"
     }
   ],
-  "totalBytes": 3157457
+  "totalBytes": 5959285
 }
