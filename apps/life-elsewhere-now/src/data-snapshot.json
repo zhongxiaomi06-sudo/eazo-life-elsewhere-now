@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "snapshotVersion": "world-bank-wdi-2026-08-27",
+  "retrievedAt": "2026-08-27T08:00:00.000Z",
+  "transformVersion": "life-indicators-v1",
+  "license": "CC BY 4.0",
+  "source": "World Bank World Development Indicators API",
+  "regions": {
+    "BRA": { "label": "Southeast Brazil", "timeZone": "America/Sao_Paulo", "IT.NET.USER.ZS": [84.5, 2024], "SP.URB.TOTL.IN.ZS": [87.9, 2024], "EG.ELC.ACCS.ZS": [99.8, 2024], "SH.H2O.BASW.ZS": [100, 2024] },
+    "CAN": { "label": "Western Canada", "timeZone": "America/Vancouver", "IT.NET.USER.ZS": [94.4, 2024], "SP.URB.TOTL.IN.ZS": [82.7, 2024], "EG.ELC.ACCS.ZS": [100, 2024], "SH.H2O.BASW.ZS": [98.3, 2024] },
+    "ESP": { "label": "Eastern Spain", "timeZone": "Europe/Madrid", "IT.NET.USER.ZS": [95.8, 2024], "SP.URB.TOTL.IN.ZS": [80.3, 2024], "EG.ELC.ACCS.ZS": [100, 2024], "SH.H2O.BASW.ZS": [99.9, 2024] },
+    "IND": { "label": "Southern India", "timeZone": "Asia/Kolkata", "IT.NET.USER.ZS": [64.9, 2024], "SP.URB.TOTL.IN.ZS": [35.4, 2024], "EG.ELC.ACCS.ZS": [99.9, 2024], "SH.H2O.BASW.ZS": [95.7, 2024] },
+    "JPN": { "label": "Central Japan", "timeZone": "Asia/Tokyo", "IT.NET.USER.ZS": [85.5, 2024], "SP.URB.TOTL.IN.ZS": [92.2, 2024], "EG.ELC.ACCS.ZS": [100, 2024], "SH.H2O.BASW.ZS": [99.2, 2024] },
+    "KEN": { "label": "Central Kenya", "timeZone": "Africa/Nairobi", "IT.NET.USER.ZS": [35, 2024], "SP.URB.TOTL.IN.ZS": [31.9, 2024], "EG.ELC.ACCS.ZS": [77, 2024], "SH.H2O.BASW.ZS": [65.6, 2024] }
+  }
+}

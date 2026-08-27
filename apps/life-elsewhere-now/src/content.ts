@@ -1,4 +1,4 @@
-import snapshot from '../content/data-snapshot.json';
+import snapshot from './data-snapshot.json';
 
 export type Topic = 'food'|'commute'|'school'|'work'|'home'|'health'|'leisure'|'income'|'urban-rural'|'migration'|'climate'|'conflict-context';
 export type AgeBand = 'child'|'teen'|'adult'|'older-adult';
