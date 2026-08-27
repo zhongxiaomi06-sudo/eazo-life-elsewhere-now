@@ -1,0 +1,6 @@
+assetId	assetType	sourceUrl	sourceVersion	licenseId	status	reviewer	reviewedAt
+LIFE-TEMPLATES-001	content	project-authored://life-elsewhere-templates	1	MIT	reviewed-candidate	Eazo Content Review	2026-08-27
+LIFE-WDI-001	data	https://api.worldbank.org/v2/	2026-07-13	CC-BY-4.0	retrieved-and-verified	Automated source audit	2026-08-27
+LIFE-PORTRAIT-001	illustration	project-authored://deterministic-svg-portrait	1	MIT	sanitized-candidate	Automated security audit	2026-08-27
+LIFE-OG-001	illustration	project-authored://elsewhere-now-social-card	1	PROJECT-AUTHORED	generated-candidate	Codex image generation	2026-08-27
+LIFE-FONT-001	font	system-font-stack://local	1	SYSTEM	approved	Automated source audit	2026-08-27

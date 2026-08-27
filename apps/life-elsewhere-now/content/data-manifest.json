@@ -1,0 +1,86 @@
+{
+  "manifestVersion": 1,
+  "appId": "life-elsewhere-now",
+  "buildVersion": "1.0.0-rc.1",
+  "contentVersion": "2026-08-27.wdi.1",
+  "schemaVersions": {
+    "fixture": 1,
+    "rightsLedger": 1,
+    "indicatorSnapshot": 1
+  },
+  "createdAt": "2026-08-27T00:00:00.000Z",
+  "rollbackBuildVersion": "0.0.0-empty",
+  "files": [
+    {
+      "path": "fixture.json",
+      "sha256": "8bbba40602ac8ad1d907b8f343f74426ad433e527a63f039986e654cc18f64f6",
+      "bytes": 416,
+      "contentType": "application/json",
+      "licenseId": "MIT",
+      "sourceIds": [
+        "life-elsewhere-now:fixture.json"
+      ]
+    },
+    {
+      "path": "rights-ledger.tsv",
+      "sha256": "61c2f9cf445525dad04f7ad7c3fb3e58c83b1e8557c95f7e00c2c54fdb7f77e6",
+      "bytes": 711,
+      "contentType": "text/tab-separated-values",
+      "licenseId": "LEDGER",
+      "sourceIds": [
+        "life-elsewhere-now:rights-ledger.tsv"
+      ]
+    },
+    {
+      "path": "og.png",
+      "sha256": "aa88e316770e643582a0e85e162d0801597e887ffddad0630154e611f9525ab1",
+      "bytes": 2141184,
+      "contentType": "image/png",
+      "licenseId": "PROJECT-GENERATED",
+      "sourceIds": [
+        "life-elsewhere-now:og.png"
+      ]
+    },
+    {
+      "path": "data-snapshot.json",
+      "sha256": "d791b6dcfdb7cccf98f1be1326acc015554ca974a3f16d86fb3a87ec947e8cb4",
+      "bytes": 1476,
+      "contentType": "application/json",
+      "licenseId": "CC-BY-4.0",
+      "sourceIds": [
+        "life-elsewhere-now:data-snapshot.json"
+      ]
+    },
+    {
+      "path": "sw.js",
+      "sha256": "eec386c2a79de0ec910874e332efcb9488a912a841107e90b5eb2ba3360f2655",
+      "bytes": 1322,
+      "contentType": "text/javascript",
+      "licenseId": "MIT",
+      "sourceIds": [
+        "life-elsewhere-now:sw.js"
+      ]
+    }
+  ],
+  "datasets": [
+    {
+      "datasetId": "life-editorial-templates",
+      "version": "1",
+      "retrievedAt": "2026-08-27",
+      "sourceUrl": "project-authored://life-elsewhere-now",
+      "licenseId": "MIT",
+      "transformVersion": "life-templates-v1",
+      "outputSha256": "8bbba40602ac8ad1d907b8f343f74426ad433e527a63f039986e654cc18f64f6"
+    },
+    {
+      "datasetId": "world-bank-wdi-life-snapshot",
+      "version": "2026-08-27",
+      "retrievedAt": "2026-08-27",
+      "sourceUrl": "https://api.worldbank.org/v2/",
+      "licenseId": "CC-BY-4.0",
+      "transformVersion": "life-indicators-v1",
+      "outputSha256": "d791b6dcfdb7cccf98f1be1326acc015554ca974a3f16d86fb3a87ec947e8cb4"
+    }
+  ],
+  "totalBytes": 2145109
+}

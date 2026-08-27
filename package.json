@@ -1,0 +1,31 @@
+{
+  "name": "eazo-life-elsewhere-now",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "D2-entry engineering workspace for five Eazo mobile-first experiences.",
+  "license": "MIT",
+  "packageManager": "pnpm@11.24.0",
+  "engines": {
+    "node": ">=24.20.0 <27",
+    "pnpm": "11.24.0"
+  },
+  "scripts": {
+    "build": "pnpm --filter @eazo/life-elsewhere-now build",
+    "dev": "pnpm --filter @eazo/life-elsewhere-now dev",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "lint": "oxlint --deny-warnings packages apps",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "@types/node": "24.10.1",
+    "@vitest/coverage-v8": "4.1.11",
+    "oxlint": "1.80.0",
+    "typescript": "6.0.3",
+    "vite": "8.2.2",
+    "vitest": "4.1.11"
+  }
+}
