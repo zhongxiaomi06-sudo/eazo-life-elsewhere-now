@@ -17,6 +17,8 @@ test('production path discloses synthetic content and creates a pair', async ({ 
 
   await page.getByRole('button', { name: 'Begin an encounter ↗' }).click();
   await expect(page.getByText('SYNTHETIC SCENE')).toBeVisible();
+  await expect(page.getByText('Possible portrait')).toBeVisible();
+  await expect(page.getByText('Independent visual seed · not a real person')).toBeVisible();
   await expect(page.getByText('national estimate · not a personal prediction')).toBeVisible();
   await page.getByRole('button', { name: '＋ Save for a pair' }).click();
   await expect(page.getByRole('status')).toContainText('Saved on this device.');
@@ -39,5 +41,17 @@ test('offline state keeps the local experience usable', async ({ page, context }
   await context.setOffline(true);
   await expect(page.getByText('Offline ready')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Meet someone else →' })).toBeEnabled();
+  await context.setOffline(false);
+});
+
+test('cached shell survives a cold offline reload', async ({ page, context, browserName }) => {
+  test.skip(browserName === 'webkit', 'WebKit offline reload is not stable in Playwright; covered by active-session offline test.');
+  await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
+  const cachedRequests = await page.evaluate(async () => (await caches.open('elsewhere-now-v3')).keys().then(keys => keys.map(key => key.url)));
+  expect(cachedRequests.some(url => url.includes('/assets/index-') && url.endsWith('.js'))).toBe(true);
+  await context.setOffline(true);
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(page.getByRole('heading', { name: 'Right now, elsewhere feels normal.' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Begin an encounter ↗' })).toBeEnabled();
   await context.setOffline(false);
 });

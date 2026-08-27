@@ -29,9 +29,9 @@ The build is feature-complete for the nine Product 3 requirements and has passed
 ## Executed evidence
 
 - Vitest: 9/9 Product 3 requirement tests passed.
-- Playwright: 10/10 tests passed across Pixel 7 Chromium and iPhone 12 WebKit profiles (6 Product 3 production-path checks plus 4 shared mobile/accessibility smoke checks).
+- Playwright: 11 tests passed and 1 WebKit-only cold-reload test was skipped across Pixel 7 Chromium and iPhone 12 WebKit profiles. Chromium verifies the cold offline shell reload; both profiles verify the full product path, mobile/accessibility behavior, and active-session offline behavior. Playwright WebKit reports an internal error for automated offline reload, so a real-iPhone cold reload remains part of the physical-device gate.
 - Visual browser audit: 1440 px desktop plus 375, 390, and 430 px mobile views passed; home CTA, encounter card, fixed bottom navigation, touch targets, and view-reset behavior were exercised with zero horizontal overflow. The 2026-08-27 contrast pass adds a mobile-specific three-cut visual rail and keeps the primary CTA below the fold-safe cinematic panel.
-- Manifest: 9 files, including the versioned social covers, compressed NASA Earth Observatory night-light composite, and a 535,794-byte edited/muted NASA JSC ISS night loop; below the 25 MB mandatory-cache cap.
+- Manifest: 10 files and 8,411,375 bytes, including versioned social covers, the compressed NASA Earth Observatory night-light composite, and a 535,794-byte edited/muted NASA JSC ISS night loop; below the 25 MB mandatory-cache cap.
 - Production build: JavaScript gzip 289.79 KB, CSS gzip 4.73 KB; below the 350 KB first-view JavaScript budget.
 - Lint: zero warnings for the full workspace at the time of the Product 3 run.
 - Product 3 typecheck and production build: passed.
@@ -49,6 +49,8 @@ Human-only checks remain deliberately unsigned: `aestheticLevel=enjoy`, North Am
 Vite externalizes Node `crypto`/`buffer` paths reachable inside `@eazo/sdk 0.22.8`. The official share surface works through the SDK capability path and the build stays within budget, but the warning should be rechecked against the next SDK release. Browser warnings from unrelated installed extensions are excluded from app results.
 
 The expanded contrast and motion source audit is recorded in `VISUAL-RESEARCH-2026-08-27.md`. It separates viral editing-pattern research from production-media licensing and records the exact NASA source and local transform.
+
+The 2026-08-28 candidate-code review is recorded in `CANDIDATE-MERGE-AUDIT-2026-08-28.md`. The merge adopts postcard-style disclosure and calmer editorial cards while rejecting unlicensed country-labelled people, shortened safety copy, E2B-only preview configuration, and removal of offline support. Navigation now uses network-first refresh with cached offline fallback; static assets use stale-while-revalidate.
 
 ## Stage decision
 

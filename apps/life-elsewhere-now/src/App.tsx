@@ -8,7 +8,10 @@ const COLLECTION_KEY = 'life-elsewhere-collection-v1';
 const loadCollection = (): Scene[] => { try { return JSON.parse(globalThis.localStorage?.getItem(COLLECTION_KEY) ?? '[]') as Scene[]; } catch { return []; } };
 
 function Portrait({ scene }: { scene: Scene }) {
-  return <div className="portrait" style={{'--portrait-accent':scene.visual.top} as React.CSSProperties} dangerouslySetInnerHTML={{__html:buildAvatarSvg(scene.visual)}} />;
+  return <figure className="portrait" style={{'--portrait-accent':scene.visual.top} as React.CSSProperties}>
+    <div className="portrait-art" aria-hidden="true" dangerouslySetInnerHTML={{__html:buildAvatarSvg(scene.visual)}} />
+    <figcaption><b>Possible portrait</b><span>Independent visual seed · not a real person</span></figcaption>
+  </figure>;
 }
 
 function SourceNote({ scene }: { scene: Scene }) {

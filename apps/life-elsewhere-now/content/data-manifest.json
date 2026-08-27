@@ -1,8 +1,8 @@
 {
   "manifestVersion": 1,
   "appId": "life-elsewhere-now",
-  "buildVersion": "1.0.0-rc.2",
-  "contentVersion": "2026-08-27.wdi.2",
+  "buildVersion": "1.0.0-rc.3",
+  "contentVersion": "2026-08-28.wdi.3",
   "schemaVersions": {
     "fixture": 1,
     "rightsLedger": 1,
@@ -23,8 +23,8 @@
     },
     {
       "path": "rights-ledger.tsv",
-      "sha256": "d1049c1f52bc3b3cbf6f2b86c84185781920510eafcd779790b34b93285a7b27",
-      "bytes": 1522,
+      "sha256": "2210f9b9ce1b1017f239591924b0054828c76d948255f334d498df730e841759",
+      "bytes": 1679,
       "contentType": "text/tab-separated-values",
       "licenseId": "LEDGER",
       "sourceIds": [
@@ -62,6 +62,16 @@
       ]
     },
     {
+      "path": "og-v4.png",
+      "sha256": "ce11ccca246ee8dbbc0d31b32f7ad20d32d91fb5b08ad1241c6929898e6d3509",
+      "bytes": 2451381,
+      "contentType": "image/png",
+      "licenseId": "PROJECT-GENERATED",
+      "sourceIds": [
+        "life-elsewhere-now:og-v4.png"
+      ]
+    },
+    {
       "path": "earth-at-night.webp",
       "sha256": "4d27248e84c9946dab8d6b6a02697b5a2c68dad4cd8bfc9977936601c543d535",
       "bytes": 106414,
@@ -93,8 +103,8 @@
     },
     {
       "path": "sw.js",
-      "sha256": "8211d50c502b470d03d762dcf4754771602aa93a8634b883bf4900fb466740b0",
-      "bytes": 1377,
+      "sha256": "201803adf47dbb8ea11a62906c368c4a4736058c3434fe23423449dd1071cff0",
+      "bytes": 1929,
       "contentType": "text/javascript",
       "licenseId": "MIT",
       "sourceIds": [
@@ -122,5 +132,5 @@
       "outputSha256": "d791b6dcfdb7cccf98f1be1326acc015554ca974a3f16d86fb3a87ec947e8cb4"
     }
   ],
-  "totalBytes": 5959285
+  "totalBytes": 8411375
 }
