@@ -29,18 +29,18 @@ The build is feature-complete for the nine Product 3 requirements and has passed
 ## Executed evidence
 
 - Vitest: 9/9 Product 3 requirement tests passed.
-- Playwright: 6/6 Product 3 production-path tests passed across Pixel 7 Chromium and iPhone 12 WebKit profiles.
-- Visual browser audit: desktop first view, 375 px mobile first view, encounter, save, and pair comparison passed; zero horizontal overflow.
-- Manifest: 5 files, 2,145,123 bytes, all hashes and licenses validated; below the 25 MB mandatory-cache cap.
-- Production build: JavaScript gzip 289.50 KB, CSS gzip 3.39 KB; below the 350 KB first-view JavaScript budget.
+- Playwright: 10/10 tests passed across Pixel 7 Chromium and iPhone 12 WebKit profiles (6 Product 3 production-path checks plus 4 shared mobile/accessibility smoke checks).
+- Visual browser audit: 1440 px desktop plus 375, 390, and 430 px mobile views passed; home CTA, encounter card, fixed bottom navigation, touch targets, and view-reset behavior were exercised with zero horizontal overflow.
+- Manifest: 7 files, 3,157,457 bytes, including the versioned social cover and compressed NASA Earth Observatory night-light composite; below the 25 MB mandatory-cache cap.
+- Production build: JavaScript gzip 289.79 KB, CSS gzip 4.73 KB; below the 350 KB first-view JavaScript budget.
 - Lint: zero warnings for the full workspace at the time of the Product 3 run.
 - Product 3 typecheck and production build: passed.
 
 ## Detailed design audit
 
-The UI uses an editorial atlas system rather than dashboard cards: warm paper, ink typography, orange as the single semantic accent, orbital geography without political borders, and deterministic abstract portraits. The first view answers “what / action / result,” keeps the synthetic disclosure adjacent to the CTA, and presents a complete CTA at desktop short height and mobile height. Encounter pages preserve a clear reading order: region/time, ordinary moment, generation limit, evidence, then actions. Comparison deliberately avoids high/low arrows and explains comparability.
+The redesigned UI uses a nocturnal editorial-atlas system rather than dashboard cards: forest-black space, warm-paper type, coral and acid-lime signals, a credited night-light world composite without political borders, and deterministic abstract portraits. Mobile is a distinct composition—not a scaled desktop page—with a 32dvh visual, one-screen lens/CTA row, 68 px safe-area bottom navigation, full-width encounter actions, and automatic scroll reset between views. Encounter pages preserve a clear reading order: synthetic scene, region/time, ordinary moment, generation limit, evidence, then actions. Comparison deliberately avoids high/low arrows and explains comparability.
 
-Objective checks passed: 44 px minimum action height, visible focus outlines, skip link, live-region feedback, reduced-motion media query, safe-area viewport configuration, no horizontal overflow at 375 px, readable source ledger, local data reset, offline state, and Web fallback. The generated social card matches the finished palette and contains the exact synthetic-data disclaimer.
+Objective checks passed: 56 px primary/action height, visible focus outlines, skip link, live-region feedback, reduced-motion media query, safe-area viewport configuration, no horizontal overflow at 375/390/430 px, readable source ledger, local data reset, offline state, and Web fallback. The generated V2 social card matches the finished palette and is recorded separately from the NASA visual source in the rights ledger.
 
 Human-only checks remain deliberately unsigned: `aestheticLevel=enjoy`, North American English approval, brand taste, three-second comprehension, and share-intent threshold. Automated visual review cannot substitute for those signatures.
 

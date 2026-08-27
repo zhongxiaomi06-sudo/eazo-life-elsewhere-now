@@ -4,3 +4,5 @@ LIFE-WDI-001	data	https://api.worldbank.org/v2/	2026-07-13	CC-BY-4.0	retrieved-a
 LIFE-PORTRAIT-001	illustration	project-authored://deterministic-svg-portrait	1	MIT	sanitized-candidate	Automated security audit	2026-08-27
 LIFE-OG-001	illustration	project-authored://elsewhere-now-social-card	1	PROJECT-AUTHORED	generated-candidate	Codex image generation	2026-08-27
 LIFE-FONT-001	font	system-font-stack://local	1	SYSTEM	approved	Automated source audit	2026-08-27
+LIFE-EARTH-001	photography	https://eoimages.gsfc.nasa.gov/images/imagerecords/144000/144898/BlackMarble_2016_3km.jpg	2016	NASA-MEDIA-GUIDELINES	retrieved-compressed-and-attributed	Eazo Content Review	2026-08-27
+LIFE-OG-002	illustration	project-generated://imagegen/elsewhere-now-social-card-v2	2	PROJECT-GENERATED	generated-candidate	Codex image generation	2026-08-27

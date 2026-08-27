@@ -23,8 +23,8 @@
     },
     {
       "path": "rights-ledger.tsv",
-      "sha256": "61c2f9cf445525dad04f7ad7c3fb3e58c83b1e8557c95f7e00c2c54fdb7f77e6",
-      "bytes": 711,
+      "sha256": "4c3b34b59016e65af2190a3a13a5a738765ec63815c1e63cad5120f43b7c4e97",
+      "bytes": 1079,
       "contentType": "text/tab-separated-values",
       "licenseId": "LEDGER",
       "sourceIds": [
@@ -39,6 +39,26 @@
       "licenseId": "PROJECT-GENERATED",
       "sourceIds": [
         "life-elsewhere-now:og.png"
+      ]
+    },
+    {
+      "path": "og-v2.png",
+      "sha256": "bf7b5d2c94e0ff933837b0c2dda1286101b05b7ab83964085623afed187e11f6",
+      "bytes": 905566,
+      "contentType": "image/png",
+      "licenseId": "PROJECT-GENERATED",
+      "sourceIds": [
+        "life-elsewhere-now:og-v2.png"
+      ]
+    },
+    {
+      "path": "earth-at-night.webp",
+      "sha256": "4d27248e84c9946dab8d6b6a02697b5a2c68dad4cd8bfc9977936601c543d535",
+      "bytes": 106414,
+      "contentType": "image/webp",
+      "licenseId": "NASA-MEDIA-GUIDELINES",
+      "sourceIds": [
+        "life-elsewhere-now:earth-at-night.webp"
       ]
     },
     {
@@ -82,5 +102,5 @@
       "outputSha256": "d791b6dcfdb7cccf98f1be1326acc015554ca974a3f16d86fb3a87ec947e8cb4"
     }
   ],
-  "totalBytes": 2145109
+  "totalBytes": 3157457
 }

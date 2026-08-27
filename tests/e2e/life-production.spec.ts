@@ -12,7 +12,7 @@ test('production path discloses synthetic content and creates a pair', async ({ 
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1);
 
-  await page.getByRole('button', { name: 'Look across the world ↗' }).click();
+  await page.getByRole('button', { name: 'Begin an encounter ↗' }).click();
   await expect(page.getByText('SYNTHETIC SCENE')).toBeVisible();
   await expect(page.getByText('national estimate · not a personal prediction')).toBeVisible();
   await page.getByRole('button', { name: '＋ Save for a pair' }).click();
@@ -32,7 +32,7 @@ test('method ledger exposes complete source and Eazo runtime information', async
 });
 
 test('offline state keeps the local experience usable', async ({ page, context }) => {
-  await page.getByRole('button', { name: 'Look across the world ↗' }).click();
+  await page.getByRole('button', { name: 'Begin an encounter ↗' }).click();
   await context.setOffline(true);
   await expect(page.getByText('Offline ready')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Meet someone else →' })).toBeEnabled();

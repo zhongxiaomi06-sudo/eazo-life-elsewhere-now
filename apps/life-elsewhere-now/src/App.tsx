@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { device, share } from '@eazo/sdk';
 import { buildAvatarSvg, compareScenes, publicSharePayload, scheduleScenes, type Scene } from './engine';
 import { indicatorRegistry, SNAPSHOT_SHA256, templates } from './content';
@@ -28,12 +28,15 @@ export function App(){
   const scene=scenes[position % scenes.length]!;
   const comparison=collection.find(item=>item.id!==scene.id) ?? scenes[(position+1)%scenes.length]!;
   const comparisonResult=compareScenes(scene,comparison);
+  const earthImage=`${import.meta.env.BASE_URL}earth-at-night.webp`;
 
   useEffect(()=>{
     const onOnline=()=>setOnline(true); const onOffline=()=>setOnline(false);
     globalThis.addEventListener?.('online',onOnline); globalThis.addEventListener?.('offline',onOffline);
     return()=>{globalThis.removeEventListener?.('online',onOnline);globalThis.removeEventListener?.('offline',onOffline)};
   },[]);
+
+  useLayoutEffect(()=>{ globalThis.scrollTo?.(0,0); },[view]);
 
   const begin=()=>{setSessionSeed(globalThis.crypto?.randomUUID?.() ?? String(Date.now()));setPosition(0);setView('scene')};
   const next=()=>{setPosition(value=>(value+1)%scenes.length);setNotice('A new synthetic scene is ready.')};
@@ -50,15 +53,15 @@ export function App(){
 
   return <div className="world-app">
     <a className="skip-link" href="#main">Skip to experience</a>
-    <header className="topbar"><button className="wordmark" onClick={()=>setView('home')} aria-label="Go to home"><i/>ELSEWHERE, NOW</button><nav aria-label="Primary"><button aria-current={view==='scene'} onClick={()=>setView('scene')}>Encounter</button><button aria-current={view==='compare'} onClick={()=>setView('compare')}>Pair <b>{collection.length}</b></button><button aria-current={view==='method'} onClick={()=>setView('method')}>Method</button></nav><span className={`connection ${online?'online':'offline'}`}>{online?'Live shell':'Offline ready'}</span></header>
+    <header className="topbar"><button className="wordmark" onClick={()=>setView('home')} aria-label="Go to home"><i/>ELSEWHERE, NOW</button><nav aria-label="Primary"><button aria-current={view==='scene'} onClick={()=>setView('scene')}><span>Encounter</span></button><button aria-current={view==='compare'} onClick={()=>setView('compare')}><span>Pair</span> <b>{collection.length}</b></button><button aria-current={view==='method'} onClick={()=>setView('method')}><span>Method</span></button></nav><span className={`connection ${online?'online':'offline'}`}>{online?'Live shell':'Offline ready'}</span></header>
     <main id="main" tabIndex={-1}>
       {view==='home'&&<section className="landing">
-        <div className="orbital-field" aria-hidden="true"><i/><i/><i/><span className="pin p1"/><span className="pin p2"/><span className="pin p3"/><span className="pin p4"/><span className="pin p5"/><span className="pin p6"/></div>
-        <div className="hero-copy"><p className="section-label">A tiny atlas of ordinary life</p><h1>Right now,<br/><em>elsewhere</em><br/>feels normal.</h1><p className="promise">Meet one of 48 carefully written, statistically grounded scenes from another part of the world—then place two moments side by side.</p><div className="truth"><strong>Every person is synthetic.</strong><span>No real identity. No live tracking. No location collected.</span></div><div className="start-row"><label>Choose a lens<select value={lens} onChange={event=>setLens(event.target.value)}><option value="everyday">Everyday rhythms</option><option value="connection">Connected life</option><option value="resources">Shared resources</option></select></label><button className="primary-action" onClick={begin}>Look across the world <span>↗</span></button></div></div>
-        <aside className="edition"><span>EDITION 01</span><strong>6</strong><small>broad regions</small><strong>48</strong><small>reviewed scenes</small><p>Data snapshot<br/>27 AUG 2026</p></aside>
+        <div className="hero-copy"><p className="section-label"><i/> A live-feeling atlas, without live tracking</p><h1>Right now,<br/><em>elsewhere</em><br/>feels normal.</h1><p className="promise">Step into one ordinary moment on the other side of the world. Pair it with another and notice difference without turning life into a ranking.</p><div className="start-row"><label>Choose your lens<select value={lens} onChange={event=>setLens(event.target.value)}><option value="everyday">Everyday rhythms</option><option value="connection">Connected life</option><option value="resources">Shared resources</option></select></label><button className="primary-action" onClick={begin}>Begin an encounter <span>↗</span></button></div><div className="truth"><strong>Every person is synthetic.</strong><span>No real identity. No live tracking. No location collected.</span></div></div>
+        <figure className="atlas-visual"><img src={earthImage} alt="NASA Earth Observatory composite of Earth at night"/><div className="night-wash"/><div className="orbit orbit-one"/><div className="orbit orbit-two"/><span className="pin p1"/><span className="pin p2"/><span className="pin p3"/><span className="pin p4"/><span className="pin p5"/><span className="pin p6"/><div className="world-caption"><span>THE WORLD, HELD LIGHTLY</span><strong>48</strong><small>reviewed scenes across 6 broad regions</small></div><figcaption>Night-light composite: NASA Earth Observatory · visual context only</figcaption></figure>
+        <aside className="edition"><span>EDITION 01 · 27 AUG 2026</span><div><strong>48</strong><small>reviewed scenes</small></div><div><strong>12</strong><small>ordinary-life themes</small></div><p>Public statistics provide context.<br/>They never predict a person.</p></aside>
       </section>}
       {view==='scene'&&<section className="encounter" aria-live="polite">
-        <div className="scene-index"><span>{String(position+1).padStart(2,'0')}</span><i/><small>OF 10 THIS VISIT</small></div><div className="portrait-wrap"><Portrait scene={scene}/><span className="synthetic-stamp">SYNTHETIC<br/>SCENE</span></div>
+        <div className="scene-index"><span>{String(position+1).padStart(2,'0')}</span><i/><small>OF 10 THIS VISIT</small></div><div className="scene-canvas"><img src={earthImage} alt=""/><div className="portrait-wrap"><Portrait scene={scene}/><span className="synthetic-stamp">SYNTHETIC<br/>SCENE</span></div><p>ONE POSSIBLE MOMENT<br/>NOT A REAL PERSON</p></div>
         <article className="scene-story"><div className="place-row"><p>{scene.regionLabel}</p><time>{scene.localTime}</time></div><h1>{scene.narrative}</h1><p className="context">This moment was written from a reviewed template. Its appearance is generated independently from region, wealth, religion, and circumstance.</p><SourceNote scene={scene}/><div className="scene-actions"><button className="primary-action" onClick={next}>Meet someone else <span>→</span></button><button onClick={save}>＋ Save for a pair</button><button onClick={sharePair}>Share via Eazo</button></div><button className="text-link" onClick={()=>setView('method')}>Why did this scene appear?</button></article>
       </section>}
       {view==='compare'&&<section className="comparison-page"><header><p className="section-label">Two moments, one world</p><h1>Difference without a scoreboard.</h1><p>National indicators provide context. They never decide an individual's story.</p></header><div className="pair-grid"><article><Portrait scene={scene}/><p className="pair-place">{scene.regionLabel} · {scene.localTime}</p><h2>{scene.narrative}</h2><SourceNote scene={scene}/></article><div className="pair-mark" aria-hidden="true">↔</div><article><Portrait scene={comparison}/><p className="pair-place">{comparison.regionLabel} · {comparison.localTime}</p><h2>{comparison.narrative}</h2><SourceNote scene={comparison}/></article></div><div className="comparison-rule">{comparisonResult.ranking===null?<><strong>No ranking shown</strong><span>{comparisonResult.reasonCode?.replaceAll('_',' ').toLowerCase()}. Each value keeps its own definition and year.</span></>:<><strong>Comparable context, not comparable people</strong><span>Both values use the same definition, unit, and a comparable year. We still do not label either life “higher” or “lower.”</span></>}</div><div className="scene-actions"><button className="primary-action" onClick={sharePair}>Share this pair via Eazo <span>↗</span></button><button onClick={next}>Change first scene</button></div></section>}
