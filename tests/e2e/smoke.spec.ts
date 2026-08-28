@@ -20,3 +20,12 @@ test('keyboard reaches the primary task', async ({ page, browserName }) => {
   await page.keyboard.press('Enter');
   await expect(page.locator('main')).toBeFocused();
 });
+
+test('320px compact viewport has no horizontal overflow', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Begin an encounter ↗' }).click();
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+  await expect(page.getByRole('group', { name: /Encounter 1 of 10/ })).toBeVisible();
+});

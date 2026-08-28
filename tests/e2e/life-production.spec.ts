@@ -27,6 +27,12 @@ test('production path discloses synthetic content and creates a pair', async ({ 
   await page.getByRole('button', { name: 'Pair 1' }).click();
   await expect(page.getByRole('heading', { name: 'Difference without a scoreboard.' })).toBeVisible();
   await expect(page.getByText(/Comparable context|No ranking shown/)).toBeVisible();
+  const firstPairStory = page.locator('.pair-primary h2');
+  const previousStory = await firstPairStory.textContent();
+  await page.getByRole('button', { name: 'Change first scene' }).click();
+  await expect(page.getByRole('button', { name: 'Change first scene' })).toBeDisabled();
+  await expect(firstPairStory).not.toHaveText(previousStory!);
+  await expect(page.getByRole('button', { name: 'Change first scene' })).toBeEnabled();
 });
 
 test('encounter loop supports keyboard, touch swipe and direct filmstrip navigation', async ({ page }) => {
