@@ -1,12 +1,14 @@
 import { describe, expect, test } from 'vitest';
 import { AtomicContentCache } from '@eazo/platform';
 import { indicatorRegistry, regions, SNAPSHOT_SHA256, templates, type RegionId } from './content';
-import { buildAvatarSvg, compareIndicators, composeScene, publicSharePayload, safeFallback, sanitizeSvg, scheduleScenes, visualOptions } from './engine';
+import { buildAvatarSvg, compareIndicators, compareScenes, composeScene, pickDuelOpponent, publicSharePayload, safeFallback, sanitizeSvg, scheduleScenes, visualOptions } from './engine';
+import { postcardForRegion, postcards } from './postcards';
+import { isMuted, play, setMuted } from './sound';
 
 describe('Life Elsewhere production requirements',()=>{
   test('TEST-LIFE-001 provides an immediate synthetic disclosure contract',()=>{
     const copy='Every person is synthetic. No real identity. No live tracking.';
-    expect(copy).toContain('synthetic'); expect(copy).toContain('No live tracking'); expect(templates).toHaveLength(48);
+    expect(copy).toContain('synthetic'); expect(copy).toContain('No live tracking'); expect(templates).toHaveLength(60);
   });
 
   test('TEST-LIFE-002 appearance is deterministic and independent from region',()=>{
@@ -24,14 +26,23 @@ describe('Life Elsewhere production requirements',()=>{
     expect(safeFallback).toEqual({id:'SAFE-FALLBACK-001',displayedNumericClaimCount:0,reasonCode:'MISSING_REQUIRED_INDICATORS'});
   });
 
-  test('TEST-LIFE-004 schedules 10 diverse, non-sensitive encounters',()=>{
-    const scenes=scheduleScenes('approved-fixture',10);
-    expect(scenes).toHaveLength(10);
+  test('TEST-LIFE-004 schedules 50 diverse, non-sensitive encounters',()=>{
+    const scenes=scheduleScenes('approved-fixture',50);
+    expect(scenes).toHaveLength(50);
     expect(new Set(scenes.map(scene=>scene.topic)).size).toBeGreaterThanOrEqual(6);
-    expect(new Set(scenes.map(scene=>scene.regionId)).size).toBeGreaterThanOrEqual(5);
+    expect(new Set(scenes.map(scene=>scene.regionId)).size).toBe(Object.keys(regions).length);
     for(let index=1;index<scenes.length;index+=1){expect(scenes[index]?.regionId).not.toBe(scenes[index-1]?.regionId);expect(scenes[index]?.id).not.toBe(scenes[index-1]?.id)}
     expect(scenes.some(scene=>scene.sensitivity==='high')).toBe(false);
-    for(const topic of new Set(scenes.map(scene=>scene.topic))) expect(scenes.filter(scene=>scene.topic===topic).length).toBeLessThanOrEqual(2);
+    for(const topic of new Set(scenes.map(scene=>scene.topic))) expect(scenes.filter(scene=>scene.topic===topic).length).toBeLessThanOrEqual(5);
+  });
+
+  test('TEST-LIFE-004A first visit has one unique, region-matched postcard per region',()=>{
+    const scenes=scheduleScenes('approved-fixture',Object.keys(regions).length);
+    expect(scenes).toHaveLength(Object.keys(regions).length);
+    expect(new Set(scenes.map(scene=>scene.regionId)).size).toBe(Object.keys(regions).length);
+    expect(postcards).toHaveLength(Object.keys(regions).length);
+    expect(new Set(postcards.map(card=>card.img)).size).toBe(Object.keys(regions).length);
+    for(const scene of scenes) expect(postcardForRegion(scene.regionId).regionId).toBe(scene.regionId);
   });
 
   test('TEST-LIFE-005 every numeric claim resolves to complete source metadata',()=>{
@@ -40,7 +51,7 @@ describe('Life Elsewhere production requirements',()=>{
 
   test('TEST-LIFE-006 high-sensitivity content is excluded from first-session schedule',()=>{
     expect(templates.some(template=>template.sensitivity==='high')).toBe(true);
-    expect(scheduleScenes('sensitive-gate',10).every(scene=>scene.sensitivity!=='high')).toBe(true);
+    expect(scheduleScenes('sensitive-gate',50).every(scene=>scene.sensitivity!=='high')).toBe(true);
   });
 
   test('TEST-LIFE-007 incompatible definitions, units, and years never rank',()=>{
@@ -61,5 +72,25 @@ describe('Life Elsewhere production requirements',()=>{
     cache.stage(v1); expect(cache.activate(['content.json','snapshot.json'])).toBe(true);
     cache.stage({version:'v2',files:new Map([['content.json','partial']])}); expect(cache.activate(['content.json','snapshot.json'])).toBe(false);
     expect(cache.active?.version).toBe('v1'); expect([...cache.active!.files.keys()]).not.toContain('v2');
+  });
+
+  test('TEST-LIFE-010 duel opponents share an indicator and always compare fairly',()=>{
+    const scenes=scheduleScenes('first-visit',50);
+    for(const anchor of scenes){
+      const opponent=pickDuelOpponent(scenes,anchor);
+      expect(opponent).not.toBeNull();
+      expect(opponent!.id).not.toBe(anchor.id);
+      expect(opponent!.indicatorId).toBe(anchor.indicatorId);
+      expect(compareScenes(anchor,opponent!).ranking).not.toBeNull();
+      expect(pickDuelOpponent(scenes,anchor)!.id).toBe(opponent!.id);
+    }
+  });
+
+  test('TEST-LIFE-011 sound never breaks without an audio context and respects mute',()=>{
+    // node 环境无 AudioContext:所有音效必须静默降级。
+    for(const name of ['tick','collect','win','lose','reveal','complete','journey','begin','save'] as const) expect(()=>play(name)).not.toThrow();
+    setMuted(true); expect(isMuted()).toBe(true);
+    for(const name of ['tick','collect','win','lose','reveal','complete','journey','begin','save'] as const) expect(()=>play(name)).not.toThrow();
+    setMuted(false); expect(isMuted()).toBe(false);
   });
 });

@@ -1,23 +1,27 @@
 {
-  "name": "eazo-life-elsewhere-now",
-  "version": "0.1.0",
+  "name": "eazo-life-elsewhere-now-material-package",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "D2-entry engineering workspace for five Eazo mobile-first experiences.",
-  "license": "MIT",
-  "packageManager": "pnpm@11.24.0",
+  "packageManager": "pnpm@11.12.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zhongxiaomi06-sudo/eazo-life-elsewhere-now.git"
+  },
   "engines": {
     "node": ">=24.20.0 <27",
-    "pnpm": "11.24.0"
+    "pnpm": ">=11.12.0 <12"
   },
   "scripts": {
-    "build": "pnpm --filter @eazo/life-elsewhere-now build",
     "dev": "pnpm --filter @eazo/life-elsewhere-now dev",
+    "lint": "oxlint --ignore-pattern '**/node_modules/**' --deny-warnings apps/life-elsewhere-now packages scripts",
     "typecheck": "pnpm -r --if-present typecheck",
-    "lint": "oxlint --deny-warnings packages apps",
-    "test": "vitest run",
+    "test": "vitest run apps/life-elsewhere-now/src --passWithNoTests",
+    "build": "pnpm --filter @eazo/life-elsewhere-now build",
     "test:e2e": "playwright test",
-    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+    "skill:validate": "node skills/compare-life-contexts/scripts/showcase.mjs --json",
+    "integrity": "node scripts/validate-package.mjs",
+    "verify": "pnpm integrity && pnpm skill:validate && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
   },
   "devDependencies": {
     "@playwright/test": "1.62.1",

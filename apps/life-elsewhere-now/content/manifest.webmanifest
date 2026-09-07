@@ -1,0 +1,34 @@
+{
+  "name": "Elsewhere, Now — A tiny atlas of ordinary life",
+  "short_name": "Elsewhere, Now",
+  "description": "Meet one of 48 synthetic, statistically grounded scenes of ordinary life from around the world. No real people, no live tracking.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1c1b19",
+  "theme_color": "#fbfaf8",
+  "categories": ["lifestyle", "education", "entertainment"],
+  "lang": "en-US",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

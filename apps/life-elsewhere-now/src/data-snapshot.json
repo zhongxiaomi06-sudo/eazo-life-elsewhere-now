@@ -11,6 +11,10 @@
     "ESP": { "label": "Eastern Spain", "timeZone": "Europe/Madrid", "IT.NET.USER.ZS": [95.8, 2024], "SP.URB.TOTL.IN.ZS": [80.3, 2024], "EG.ELC.ACCS.ZS": [100, 2024], "SH.H2O.BASW.ZS": [99.9, 2024] },
     "IND": { "label": "Southern India", "timeZone": "Asia/Kolkata", "IT.NET.USER.ZS": [64.9, 2024], "SP.URB.TOTL.IN.ZS": [35.4, 2024], "EG.ELC.ACCS.ZS": [99.9, 2024], "SH.H2O.BASW.ZS": [95.7, 2024] },
     "JPN": { "label": "Central Japan", "timeZone": "Asia/Tokyo", "IT.NET.USER.ZS": [85.5, 2024], "SP.URB.TOTL.IN.ZS": [92.2, 2024], "EG.ELC.ACCS.ZS": [100, 2024], "SH.H2O.BASW.ZS": [99.2, 2024] },
-    "KEN": { "label": "Central Kenya", "timeZone": "Africa/Nairobi", "IT.NET.USER.ZS": [35, 2024], "SP.URB.TOTL.IN.ZS": [31.9, 2024], "EG.ELC.ACCS.ZS": [77, 2024], "SH.H2O.BASW.ZS": [65.6, 2024] }
+    "KEN": { "label": "Central Kenya", "timeZone": "Africa/Nairobi", "IT.NET.USER.ZS": [35, 2024], "SP.URB.TOTL.IN.ZS": [31.9, 2024], "EG.ELC.ACCS.ZS": [77, 2024], "SH.H2O.BASW.ZS": [65.6, 2024] },
+    "MEX": { "label": "Central Mexico", "timeZone": "America/Mexico_City", "IT.NET.USER.ZS": [83.1, 2024], "SP.URB.TOTL.IN.ZS": [79.8, 2024], "EG.ELC.ACCS.ZS": [99.8, 2024], "SH.H2O.BASW.ZS": [99.5, 2024] },
+    "EGY": { "label": "Northern Egypt", "timeZone": "Africa/Cairo", "IT.NET.USER.ZS": [74.6, 2024], "SP.URB.TOTL.IN.ZS": [42.8, 2024], "EG.ELC.ACCS.ZS": [100, 2024], "SH.H2O.BASW.ZS": [97.3, 2024] },
+    "IDN": { "label": "Western Indonesia", "timeZone": "Asia/Jakarta", "IT.NET.USER.ZS": [72.8, 2024], "SP.URB.TOTL.IN.ZS": [58.8, 2024], "EG.ELC.ACCS.ZS": [99.9, 2024], "SH.H2O.BASW.ZS": [89, 2024] },
+    "VNM": { "label": "Southern Vietnam", "timeZone": "Asia/Ho_Chi_Minh", "IT.NET.USER.ZS": [84.2, 2024], "SP.URB.TOTL.IN.ZS": [38.5, 2024], "EG.ELC.ACCS.ZS": [100, 2024], "SH.H2O.BASW.ZS": [98.8, 2024] }
   }
 }

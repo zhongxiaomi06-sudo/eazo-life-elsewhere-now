@@ -1,0 +1,4 @@
+interface:
+  display_name: "Compare Life Contexts"
+  short_description: "Explore ordinary life across places"
+  default_prompt: "Use $compare-life-contexts to compare two everyday contexts and show the result in Life Elsewhere, Now."

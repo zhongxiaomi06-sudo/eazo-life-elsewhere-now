@@ -8,5 +8,15 @@ LIFE-EARTH-001	photography	https://eoimages.gsfc.nasa.gov/images/imagerecords/14
 LIFE-OG-002	illustration	project-generated://imagegen/elsewhere-now-social-card-v2	2	PROJECT-GENERATED	generated-candidate	Codex image generation	2026-08-27
 LIFE-VIDEO-001	video	https://eol.jsc.nasa.gov/videos/crewearthobservationsvideos/videos/Nightpass-Africa-and-India_ISS061_2019-10/Nightpass-Africa-and-India_ISS061_2019-10.mp4	2019-11	NASA-MEDIA-GUIDELINES	retrieved-edited-muted-compressed-and-attributed	Eazo Content Review	2026-08-27
 LIFE-OG-003	illustration	project-generated://imagegen/elsewhere-now-social-card-v3	3	PROJECT-GENERATED	generated-candidate	Codex image generation	2026-08-27
-LIFE-OG-004	illustration	project-generated://imagegen/elsewhere-now-social-card-v4	4	PROJECT-GENERATED	generated-candidate	Codex image generation	2026-08-28
-LIFE-OG-005	illustration	project-generated://imagegen/elsewhere-now-social-card-v5	5	PROJECT-GENERATED	generated-candidate	Codex image generation	2026-08-28
+LIFE-ICON-001	ilustration	project-authored://elsewhere-now-pwa-icon	1	MIT	generated-candidate	Eazo Content Review	2026-08-31
+LIFE-SW-001	code	project-authored://elsewhere-now-service-worker	1	MIT	reviewed-candidate	Eazo Content Review	2026-08-31
+LIFE-POSTCARD-CAN-002	photography	project-generated://imagegen/western-canada-postcard-v2	2	PROJECT-GENERATED	generated-candidate	Codex image generation	2026-09-07
+LIFE-POSTCARD-ESP-002	photography	project-generated://imagegen/eastern-spain-postcard-v2	2	PROJECT-GENERATED	generated-candidate	Codex image generation	2026-09-07
+LIFE-POSTCARD-KEN-002	photography	project-generated://imagegen/central-kenya-postcard-v2	2	PROJECT-GENERATED	generated-candidate	Codex image generation	2026-09-07
+LIFE-POSTCARD-EGY-002	photography	project-generated://imagegen/northern-egypt-postcard-v2	2	PROJECT-GENERATED	generated-candidate	Codex image generation	2026-09-07
+LIFE-POSTCARD-BRA-001	photography	project-generated://imagegen/salvador-postcard-v1	1	PROJECT-GENERATED	generated-candidate	Codex image generation	2026-09-07
+LIFE-POSTCARD-IND-001	photography	project-generated://imagegen/southern-india-postcard-v1	1	PROJECT-GENERATED	generated-candidate	Codex image generation	2026-09-07
+LIFE-POSTCARD-JPN-001	photography	project-generated://imagegen/central-japan-postcard-v1	1	PROJECT-GENERATED	generated-candidate	Codex image generation	2026-09-07
+LIFE-POSTCARD-MEX-001	photography	project-generated://imagegen/central-mexico-postcard-v1	1	PROJECT-GENERATED	generated-candidate	Codex image generation	2026-09-07
+LIFE-POSTCARD-IDN-001	photography	project-generated://imagegen/western-indonesia-postcard-v1	1	PROJECT-GENERATED	generated-candidate	Codex image generation	2026-09-07
+LIFE-POSTCARD-VNM-001	photography	project-generated://imagegen/southern-vietnam-postcard-v1	1	PROJECT-GENERATED	generated-candidate	Codex image generation	2026-09-07

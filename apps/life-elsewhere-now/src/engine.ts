@@ -23,23 +23,37 @@ export const buildAvatarSvg = (visual: VisualOptions) => sanitizeSvg(`<svg viewB
 
 const readIndicator = (regionId: RegionId, indicatorId: IndicatorId): [number, number] => regions[regionId][indicatorId] as [number,number];
 
-export const composeScene = (template: LifeTemplate, seed: string, date = new Date()): Scene => {
-  const [value,year] = readIndicator(template.regionId, template.indicatorId);
-  return { ...template, visual: visualOptions(seed), value, year, regionLabel: regions[template.regionId].label, localTime: new Intl.DateTimeFormat('en-US',{timeZone:regions[template.regionId].timeZone,hour:'2-digit',minute:'2-digit'}).format(date), snapshotSha256: SNAPSHOT_SHA256, displayedNumericClaimCount: 1 };
+// 模拟一天:第 1 张 05:30 清晨,最后一张约 23:30 深夜,线性推进。
+const simulatedTime = (dayOffset: number, count: number) => {
+  const minutes = count > 1 ? Math.round(330 + (dayOffset * 1080) / (count - 1)) : 330;
+  const hour = Math.floor(minutes / 60);
+  const minute = minutes % 60;
+  const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+  return `${String(displayHour).padStart(2, '0')}:${String(minute).padStart(2, '0')} ${hour < 12 ? 'AM' : 'PM'}`;
 };
 
-export const scheduleScenes = (sessionSeed: string, count = 10): Scene[] => {
+export const composeScene = (template: LifeTemplate, seed: string, dayOffset = 0, count = 50): Scene => {
+  const [value,year] = readIndicator(template.regionId, template.indicatorId);
+  return { ...template, visual: visualOptions(seed), value, year, regionLabel: regions[template.regionId].label, localTime: simulatedTime(dayOffset, count), snapshotSha256: SNAPSHOT_SHA256, displayedNumericClaimCount: 1 };
+};
+
+export const scheduleScenes = (sessionSeed: string, count = 50): Scene[] => {
   const safe = templates.filter((template) => template.sensitivity !== 'high');
   const start = hash(sessionSeed) % safe.length;
+  const maxPerTopic = Math.max(2, Math.ceil(count / 10));
   const chosen: LifeTemplate[] = [];
-  for (let offset=0; chosen.length<count && offset<safe.length*3; offset+=1) {
-    const candidate = safe[(start + offset * 7) % safe.length]!;
+  const requireUniqueRegions = count <= Object.keys(regions).length;
+  for (let offset=0; chosen.length<count && offset<safe.length*4; offset+=1) {
+    const candidate = safe[(start + offset * 13) % safe.length]!;
     const previous = chosen.at(-1);
     const topicCount = chosen.filter((item) => item.topic===candidate.topic).length;
-    if (previous?.id===candidate.id || previous?.regionId===candidate.regionId || topicCount>=2) continue;
+    const regionAlreadyChosen = chosen.some((item) => item.regionId===candidate.regionId);
+    if (previous?.id===candidate.id || previous?.regionId===candidate.regionId || (requireUniqueRegions && regionAlreadyChosen) || topicCount>=maxPerTopic) continue;
     chosen.push(candidate);
   }
-  return chosen.map((template,index)=>composeScene(template,`${sessionSeed}:${index}`));
+  // 兜底:约束下选不满时循环补足(允许相邻重复),保证每次访问恰好 count 张。
+  for (let offset=0; chosen.length<count; offset+=1) chosen.push(safe[(start + offset) % safe.length]!);
+  return chosen.map((template,index)=>composeScene(template,`${sessionSeed}:${index}`,index,count));
 };
 
 export const safeFallback = { id:'SAFE-FALLBACK-001', displayedNumericClaimCount:0, reasonCode:'MISSING_REQUIRED_INDICATORS' } as const;
@@ -54,6 +68,14 @@ export const compareIndicators = (leftIndicator: {definitionHash:string;unit:str
 export const compareScenes = (left: Scene, right: Scene) => {
   const leftIndicator=indicatorRegistry[left.indicatorId]; const rightIndicator=indicatorRegistry[right.indicatorId];
   return compareIndicators(leftIndicator,rightIndicator,left.year,right.year,left.value,right.value);
+};
+
+// 对决:从同一次访问的排程中选一张与 anchor 同指标、可公平比较的对手卡。
+// hash 让同一 anchor 始终得到同一对手,便于复现与测试;池为空时返回 null 由调用方兜底。
+export const pickDuelOpponent = (scenes: Scene[], anchor: Scene): Scene | null => {
+  const pool = scenes.filter((scene) => scene.id !== anchor.id && scene.indicatorId === anchor.indicatorId);
+  if (pool.length === 0) return null;
+  return pool[hash(`${anchor.id}:duel`) % pool.length]!;
 };
 
 export const publicSharePayload = (scenes: Scene[]) => ({ schemaVersion:1, synthetic:true, referenceYear:Math.max(...scenes.map(scene=>scene.year)), scenes:scenes.map(({id,topic,regionLabel,value,year,indicatorId})=>({id,topic,regionLabel,value,year,indicatorId})) });

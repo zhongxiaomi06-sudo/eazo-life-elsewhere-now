@@ -1,8 +1,8 @@
 {
   "manifestVersion": 1,
   "appId": "life-elsewhere-now",
-  "buildVersion": "1.0.0-rc.4",
-  "contentVersion": "2026-08-28.wdi.4",
+  "buildVersion": "1.0.0-rc.1",
+  "contentVersion": "2026-08-27.wdi.1",
   "schemaVersions": {
     "fixture": 1,
     "rightsLedger": 1,
@@ -23,14 +23,24 @@
     },
     {
       "path": "rights-ledger.tsv",
-      "sha256": "e14c8ea3f7e81cf709d7494de4a95f24be58d6770f1c4be5e017dd7dab303662",
-      "bytes": 1836,
+      "sha256": "b8ffb88547546fa21bfe52d72b19ae980871d2f74b80f28f718fdaae25abe303",
+      "bytes": 3404,
       "contentType": "text/tab-separated-values",
       "licenseId": "LEDGER",
       "sourceIds": [
         "life-elsewhere-now:rights-ledger.tsv"
       ]
     },
+    { "path": "postcards/brazil.png", "sha256": "707505b136469c3f1f3d97020b29e5bbd747abbecc5b3056bd0ecaaa825b39ff", "bytes": 1847997, "contentType": "image/png", "licenseId": "PROJECT-GENERATED", "sourceIds": ["LIFE-POSTCARD-BRA-001"] },
+    { "path": "postcards/canada-v2.webp", "sha256": "a6729ecf2d002fb9c956aaa1244aba9cb22897a3429c83472cdb64c388d059ce", "bytes": 287654, "contentType": "image/webp", "licenseId": "PROJECT-GENERATED", "sourceIds": ["LIFE-POSTCARD-CAN-002"] },
+    { "path": "postcards/spain-v2.webp", "sha256": "d7b58baba970a2d18eeedd2c98b997019fad3c024052329d8c972c50135fa412", "bytes": 179640, "contentType": "image/webp", "licenseId": "PROJECT-GENERATED", "sourceIds": ["LIFE-POSTCARD-ESP-002"] },
+    { "path": "postcards/india.png", "sha256": "d3a5bf27c053a2f1ffd23bd49473ca780db07ee0d5cb732174deb14fb7f6bcc3", "bytes": 1817444, "contentType": "image/png", "licenseId": "PROJECT-GENERATED", "sourceIds": ["LIFE-POSTCARD-IND-001"] },
+    { "path": "postcards/japan.png", "sha256": "4ba92e202cd5f9304d8be5c58d0cf2988cc494f1de36c7bdd39a1d0458d406ca", "bytes": 1805384, "contentType": "image/png", "licenseId": "PROJECT-GENERATED", "sourceIds": ["LIFE-POSTCARD-JPN-001"] },
+    { "path": "postcards/kenya-v2.webp", "sha256": "736fae7b54b853536b9001da8498e391d37756bbb7a78e23de9cfb4e0ea48ff3", "bytes": 243408, "contentType": "image/webp", "licenseId": "PROJECT-GENERATED", "sourceIds": ["LIFE-POSTCARD-KEN-002"] },
+    { "path": "postcards/mexico.png", "sha256": "e587376508d4a413cc9bfdf6db24486ab59fcb365e7bdf6d1b0ce309787f1cd1", "bytes": 2063891, "contentType": "image/png", "licenseId": "PROJECT-GENERATED", "sourceIds": ["LIFE-POSTCARD-MEX-001"] },
+    { "path": "postcards/egypt-v2.webp", "sha256": "d4f5c302b738d68000dd323a4b6874e4c8872e40f1b650535b664929949580be", "bytes": 143166, "contentType": "image/webp", "licenseId": "PROJECT-GENERATED", "sourceIds": ["LIFE-POSTCARD-EGY-002"] },
+    { "path": "postcards/indonesia.png", "sha256": "6f9fb281ad883fb15623595c860de288dc1f11bffa200a112079e14cdb6f4355", "bytes": 2127552, "contentType": "image/png", "licenseId": "PROJECT-GENERATED", "sourceIds": ["LIFE-POSTCARD-IDN-001"] },
+    { "path": "postcards/vietnam.png", "sha256": "5fd289a54b3ad2903df9d85f3b46df65f7e4d3668e88dd6f51b56c17020c434f", "bytes": 1927015, "contentType": "image/png", "licenseId": "PROJECT-GENERATED", "sourceIds": ["LIFE-POSTCARD-VNM-001"] },
     {
       "path": "og.png",
       "sha256": "aa88e316770e643582a0e85e162d0801597e887ffddad0630154e611f9525ab1",
@@ -39,66 +49,6 @@
       "licenseId": "PROJECT-GENERATED",
       "sourceIds": [
         "life-elsewhere-now:og.png"
-      ]
-    },
-    {
-      "path": "og-v2.png",
-      "sha256": "bf7b5d2c94e0ff933837b0c2dda1286101b05b7ab83964085623afed187e11f6",
-      "bytes": 905566,
-      "contentType": "image/png",
-      "licenseId": "PROJECT-GENERATED",
-      "sourceIds": [
-        "life-elsewhere-now:og-v2.png"
-      ]
-    },
-    {
-      "path": "og-v3.png",
-      "sha256": "6fbd2dad2c1dc0517ff77cac469ee22841a9da1ad25b4c13ff2e2b883bc17e46",
-      "bytes": 2265536,
-      "contentType": "image/png",
-      "licenseId": "PROJECT-GENERATED",
-      "sourceIds": [
-        "life-elsewhere-now:og-v3.png"
-      ]
-    },
-    {
-      "path": "og-v4.png",
-      "sha256": "ce11ccca246ee8dbbc0d31b32f7ad20d32d91fb5b08ad1241c6929898e6d3509",
-      "bytes": 2451381,
-      "contentType": "image/png",
-      "licenseId": "PROJECT-GENERATED",
-      "sourceIds": [
-        "life-elsewhere-now:og-v4.png"
-      ]
-    },
-    {
-      "path": "og-v5.png",
-      "sha256": "4d8f0e1ac72d59d43c42edc78a0de3e0c882b841f2851c5f12f0c1523856cd41",
-      "bytes": 2252433,
-      "contentType": "image/png",
-      "licenseId": "PROJECT-GENERATED",
-      "sourceIds": [
-        "life-elsewhere-now:og-v5.png"
-      ]
-    },
-    {
-      "path": "earth-at-night.webp",
-      "sha256": "4d27248e84c9946dab8d6b6a02697b5a2c68dad4cd8bfc9977936601c543d535",
-      "bytes": 106414,
-      "contentType": "image/webp",
-      "licenseId": "NASA-MEDIA-GUIDELINES",
-      "sourceIds": [
-        "life-elsewhere-now:earth-at-night.webp"
-      ]
-    },
-    {
-      "path": "iss-night-pulse.mp4",
-      "sha256": "4e67df8926e4752c8b88f61204ebbc08bf33bebe94335cffdeb6215f2c0938a0",
-      "bytes": 535794,
-      "contentType": "video/mp4",
-      "licenseId": "NASA-MEDIA-GUIDELINES",
-      "sourceIds": [
-        "life-elsewhere-now:iss-night-pulse.mp4"
       ]
     },
     {
@@ -113,8 +63,8 @@
     },
     {
       "path": "sw.js",
-      "sha256": "201803adf47dbb8ea11a62906c368c4a4736058c3434fe23423449dd1071cff0",
-      "bytes": 1929,
+      "sha256": "0fe2391b045c1fb9dccd54f3da2bdc75c434104b24692282505f6602e8cfd45a",
+      "bytes": 4987,
       "contentType": "text/javascript",
       "licenseId": "MIT",
       "sourceIds": [
@@ -142,5 +92,5 @@
       "outputSha256": "d791b6dcfdb7cccf98f1be1326acc015554ca974a3f16d86fb3a87ec947e8cb4"
     }
   ],
-  "totalBytes": 10663965
+  "totalBytes": 14594618
 }

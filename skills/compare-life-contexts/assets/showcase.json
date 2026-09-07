@@ -1,0 +1,17 @@
+{
+  "contractVersion": 1,
+  "skill": "compare-life-contexts",
+  "app": "life-elsewhere-now",
+  "package": "@eazo/life-elsewhere-now",
+  "port": 5103,
+  "title": "Life Elsewhere, Now",
+  "domain": "Compare broad everyday-life contexts without turning population data into personal prediction.",
+  "scenario": "Explore two supported adult contexts through food, home, work, connection, and public indicators.",
+  "viewport": { "width": 390, "height": 844 },
+  "steps": [
+    "Start the visit from the opening statement.",
+    "Move through the scheduled scenes and open at least one source-aware comparison.",
+    "Reach the result or postcard state, note uncertainty, and use the available restart or exit."
+  ],
+  "evidence": ["A complete two-context visit that separates editorial scenes from sourced population indicators."]
+}

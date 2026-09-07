@@ -1,132 +1,215 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { device, share } from '@eazo/sdk';
-import { buildAvatarSvg, compareScenes, publicSharePayload, scheduleScenes, type Scene } from './engine';
-import { indicatorRegistry, SNAPSHOT_SHA256, templates } from './content';
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { share } from '@eazo/sdk';
+import { selectHostAdapter } from '@eazo/platform';
+import { compareScenes, pickDuelOpponent, publicSharePayload, scheduleScenes, type Scene } from './engine';
+import { indicatorRegistry, regions, SNAPSHOT_SHA256, templates } from './content';
+import { postcardForRegion, postcards } from './postcards';
+import { isMuted, play, setMuted } from './sound';
 
-type View = 'home'|'scene'|'compare'|'method';
-type SceneMotion = 'idle'|'leaving-next'|'leaving-previous'|'entering-next'|'entering-previous';
+type View = 'home'|'scene'|'compare'|'method'|'summary';
+type DuelState = 'ask'|'reveal';
+type Side = 'left'|'right';
 const COLLECTION_KEY = 'life-elsewhere-collection-v1';
 const loadCollection = (): Scene[] => { try { return JSON.parse(globalThis.localStorage?.getItem(COLLECTION_KEY) ?? '[]') as Scene[]; } catch { return []; } };
 
 function Portrait({ scene }: { scene: Scene }) {
-  return <figure className="portrait" style={{'--portrait-accent':scene.visual.top} as React.CSSProperties}>
-    <div className="portrait-art" aria-hidden="true" dangerouslySetInnerHTML={{__html:buildAvatarSvg(scene.visual)}} />
-    <figcaption><b>Possible portrait</b><span>Independent visual seed · not a real person</span></figcaption>
-  </figure>;
+  const card = postcardForRegion(scene.regionId);
+  return <figure className="portrait"><img src={card.img} alt={`Synthetic postcard from ${card.country} — ${card.caption}`} loading="lazy"/></figure>;
 }
 
-function SourceNote({ scene }: { scene: Scene }) {
+function SourceNote({ scene, hidden, highlight }: { scene: Scene; hidden?: boolean|undefined; highlight?: boolean|undefined }) {
   const indicator=indicatorRegistry[scene.indicatorId];
-  return <div className="source-note"><span>{scene.value.toFixed(1)}%</span><div><strong>{indicator.name}</strong><small>{scene.year} · national estimate · not a personal prediction</small></div></div>;
+  return <div className="source-note">{hidden?<span className="duel-blank">· · ·</span>:<span className={highlight?'duel-highlight':undefined}>{scene.value.toFixed(1)}%</span>}<div><strong>{indicator.name}</strong><small>{scene.year} · national estimate</small></div></div>;
+}
+
+function DuelCard({ scene, hidden, winner, onPick }: { scene: Scene; hidden?: boolean|undefined; winner?: 'win'|'lose'|undefined; onPick?: (()=>void)|undefined }) {
+  return <div className={`duel-card${onPick?' pickable':''}${winner?' duel-'+winner:''}`} role={onPick?'button':undefined} tabIndex={onPick?0:undefined} onClick={onPick} onKeyDown={onPick?((event)=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();onPick();}}):undefined} aria-label={`${scene.regionLabel} — guess this one is higher`}>
+    <Portrait scene={scene}/>
+    <p className="pair-place">{scene.regionLabel} · {scene.localTime}</p>
+    <h2>{scene.narrative}</h2>
+    <SourceNote scene={scene} hidden={hidden} highlight={winner==='win'}/>
+  </div>;
 }
 
 export function App(){
+  const coverImage=`${import.meta.env.BASE_URL}cover.jpg`;
   const [view,setView]=useState<View>('home');
-  const [lens,setLens]=useState('everyday');
+  const [lens]=useState('everyday');
   const [sessionSeed,setSessionSeed]=useState('first-visit');
   const [position,setPosition]=useState(0);
   const [collection,setCollection]=useState<Scene[]>(loadCollection);
-  const [online,setOnline]=useState(globalThis.navigator?.onLine ?? true);
   const [notice,setNotice]=useState('');
-  const [sceneMotion,setSceneMotion]=useState<SceneMotion>('idle');
-  const pointerStart=useRef<{x:number;y:number;id:number}|null>(null);
-  const transitionTimer=useRef<ReturnType<typeof setTimeout>|undefined>(undefined);
-  const scenes=useMemo(()=>scheduleScenes(`${sessionSeed}:${lens}`,10),[sessionSeed,lens]);
+  const [host,setHost]=useState<{mode:'web'|'eazo';share:boolean}>({mode:'web',share:false});
+  const scenes=useMemo(()=>scheduleScenes(`${sessionSeed}:${lens}`,Object.keys(regions).length),[sessionSeed,lens]);
   const scene=scenes[position % scenes.length]!;
-  const comparison=collection.find(item=>item.id!==scene.id) ?? scenes[(position+1)%scenes.length]!;
-  const comparisonResult=compareScenes(scene,comparison);
   const earthImage=`${import.meta.env.BASE_URL}earth-at-night.webp`;
-  const orbitFilm=`${import.meta.env.BASE_URL}iss-night-pulse.mp4`;
-  const [motionAllowed]=useState(()=>{
-    const saveData=(globalThis.navigator as Navigator & {connection?:{saveData?:boolean}} | undefined)?.connection?.saveData;
-    return !globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches && !saveData;
-  });
+
+  // 对决状态:进入 Pair 时以当前场景为锚点,选同指标对手,猜哪边数值更高。
+  const [duelAnchor,setDuelAnchor]=useState<Scene>(scene);
+  const [duelOpponent,setDuelOpponent]=useState<Scene>(scene);
+  const [duelState,setDuelState]=useState<DuelState>('ask');
+  const [duelGuess,setDuelGuess]=useState<Side|null>(null);
+  const [pairCorrect,setPairCorrect]=useState(0);
+  const [pairAsked,setPairAsked]=useState(0);
+
+  // 区域集邮:滑到新区域即点亮徽章,并给短暂提示。
+  const [regionsFound,setRegionsFound]=useState<string[]>([]);
+  const [regionFlash,setRegionFlash]=useState('');
+  const [soundOn,setSoundOn]=useState<boolean>(()=>!isMuted());
+
+  const resolveOpponent=(anchor:Scene)=>pickDuelOpponent(scenes,anchor) ?? scenes.find((item)=>item.id!==anchor.id) ?? anchor;
+  useEffect(()=>{
+    if(view!=='compare')return;
+    setDuelAnchor(scene);
+    setDuelOpponent(resolveOpponent(scene));
+    setDuelState('ask');
+    setDuelGuess(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[view]);
 
   useEffect(()=>{
-    const onOnline=()=>setOnline(true); const onOffline=()=>setOnline(false);
-    globalThis.addEventListener?.('online',onOnline); globalThis.addEventListener?.('offline',onOffline);
-    return()=>{globalThis.removeEventListener?.('online',onOnline);globalThis.removeEventListener?.('offline',onOffline)};
-  },[]);
+    if(view!=='scene'||regionsFound.includes(scene.regionId))return;
+    const completesAtlas=regionsFound.length+1>=Object.keys(regions).length;
+    setRegionsFound((prev)=>[...prev,scene.regionId]);
+    setRegionFlash(scene.regionLabel);
+    play(completesAtlas?'complete':'collect');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[scene.regionId,view]);
+  useEffect(()=>{
+    if(!regionFlash)return;
+    const timer=setTimeout(()=>setRegionFlash(''),2800);
+    return()=>clearTimeout(timer);
+  },[regionFlash]);
 
-  useEffect(()=>()=>globalThis.clearTimeout(transitionTimer.current),[]);
+  // Eazo 宿主探测:检测注入的宿主桥,并在宿主支持时用宿主缓存预取明信片资源。
+  useEffect(()=>{
+    let alive=true;
+    (async()=>{
+      const adapter=selectHostAdapter();
+      const caps=await adapter.getCapabilities();
+      if(!alive)return;
+      const inHost=caps.share||caps.remix||caps.cacheBundle;
+      setHost({mode:inHost?'eazo':'web',share:Boolean(caps.share)});
+      if(caps.cacheBundle){
+        const urls=[earthImage,...postcards.map(card=>card.img)];
+        void adapter.cacheBundle({appId:'life-elsewhere-now',version:'1.0.0-rc.2',urls,expectedBytes:24_000_000}).catch(()=>{});
+      }
+    })().catch(()=>{});
+    return()=>{alive=false};
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[]);
 
   useLayoutEffect(()=>{ globalThis.scrollTo?.(0,0); },[view]);
 
-  const begin=()=>{setSessionSeed(globalThis.crypto?.randomUUID?.() ?? String(Date.now()));setPosition(0);setView('scene')};
-  const moveScene=(delta:1|-1)=>{
-    if(sceneMotion!=='idle') return;
-    const direction=delta===1?'next':'previous';
-    setSceneMotion(`leaving-${direction}`);
-    transitionTimer.current=globalThis.setTimeout(()=>{
-      setPosition(value=>(value+delta+scenes.length)%scenes.length);
-      setSceneMotion(`entering-${direction}`);
-      transitionTimer.current=globalThis.setTimeout(()=>setSceneMotion('idle'),260);
-    },180);
-    setNotice(delta===1?'A new synthetic scene is ready.':'Returned to the previous synthetic scene.');
-  };
-  const next=()=>moveScene(1);
-  const onPointerDown=(event:React.PointerEvent<HTMLElement>)=>{
-    pointerStart.current={x:event.clientX,y:event.clientY,id:event.pointerId};
-    event.currentTarget.setPointerCapture?.(event.pointerId);
-  };
-  const onPointerUp=(event:React.PointerEvent<HTMLElement>)=>{
-    const start=pointerStart.current;
-    pointerStart.current=null;
-    if(!start || start.id!==event.pointerId) return;
-    const horizontal=event.clientX-start.x;
-    const vertical=event.clientY-start.y;
-    if(Math.abs(horizontal)>52 && Math.abs(horizontal)>Math.abs(vertical)*1.25) moveScene(horizontal<0?1:-1);
-  };
+  // 场景/首页锁定整屏:禁止上下滚动,左右滑动(切换场景)保留;其余页面可滚动。
+  useEffect(()=>{
+    const locked=view==='home'||view==='scene';
+    const html=document.documentElement;
+    const body=document.body;
+    const prevHtml=html.style.overflow;
+    const prevBody=body.style.overflow;
+    if(locked){html.style.overflow='hidden';body.style.overflow='hidden';}
+    return()=>{html.style.overflow=prevHtml;body.style.overflow=prevBody;};
+  },[view]);
+
+  const begin=()=>{play('begin');setSessionSeed(globalThis.crypto?.randomUUID?.() ?? String(Date.now()));setPosition(0);setRegionsFound([]);setPairCorrect(0);setPairAsked(0);setView('scene')};
   const save=()=>{
     if(collection.some(item=>item.id===scene.id)){setNotice('Already in your pair collection.');return}
-    const nextCollection=[...collection,scene].slice(-20);setCollection(nextCollection);globalThis.localStorage?.setItem(COLLECTION_KEY,JSON.stringify(nextCollection));setNotice('Saved on this device.');
+    const nextCollection=[...collection,scene].slice(-20);setCollection(nextCollection);globalThis.localStorage?.setItem(COLLECTION_KEY,JSON.stringify(nextCollection));setNotice('Saved on this device.');play('save');
   };
   const sharePair=async()=>{
-    const payload=publicSharePayload(view==='compare'?[scene,comparison]:[scene]);
+    const payload=publicSharePayload(view==='compare'?[duelAnchor,duelOpponent]:[scene]);
     const text=`Somewhere else, ordinary looks different. ${scene.regionLabel}: ${scene.narrative} Synthetic scene · ${scene.year} reference data. Try your own perspective.`;
+    if(!host.share){
+      try { await globalThis.navigator?.clipboard?.writeText(`${text}\n${JSON.stringify(payload)}`); setNotice('Share text copied. Eazo sharing is available in the mobile app.'); }
+      catch { setNotice('Eazo sharing is available in the mobile app.'); }
+      return;
+    }
     try { const result=await share.compose({text,sourceAppId:'life-elsewhere-now',targetPath:'/?from=share'}); setNotice(result.accepted?'Opened in Eazo. Review before publishing.':'Eazo sharing is available in the mobile app. The text is ready to copy.'); }
     catch { await globalThis.navigator?.clipboard?.writeText(`${text}\n${JSON.stringify(payload)}`); setNotice('Share was unavailable, so a privacy-safe version was copied.'); }
   };
 
-  return <div className="world-app">
+  // 单手玩法:首页上滑开始,场景页左右滑动切换;键盘方向键同效。
+  const step=(delta:number)=>{play('tick');setPosition((current)=>(current+delta+scenes.length)%scenes.length)};
+  const [touchStart,setTouchStart]=useState<{x:number;y:number}|null>(null);
+  const onTouchStart=(event:React.TouchEvent)=>{const point=event.touches[0];if(point)setTouchStart({x:point.clientX,y:point.clientY});};
+  const onTouchEnd=(event:React.TouchEvent)=>{
+    const start=touchStart;if(!start)return;
+    const point=event.changedTouches[0];if(!point)return;
+    const dx=point.clientX-start.x;const dy=point.clientY-start.y;
+    setTouchStart(null);
+    if(view==='home'){if(dy<-70)begin();return;}
+    if(view==='scene'&&Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>64)step(dx<0?1:-1);
+  };
+  useLayoutEffect(()=>{
+    const handler=(event:KeyboardEvent)=>{
+      if(view==='home'&&event.key==='ArrowUp'){event.preventDefault();begin();}
+      else if(view==='scene'&&event.key==='ArrowRight'){event.preventDefault();step(1);}
+      else if(view==='scene'&&event.key==='ArrowLeft'){event.preventDefault();step(-1);}
+    };
+    globalThis.addEventListener('keydown',handler);
+    return()=>globalThis.removeEventListener('keydown',handler);
+  });
+
+  // 对决判定与文案
+  const duelResult=compareScenes(duelAnchor,duelOpponent);
+  const duelWinnerSide: Side|null=duelResult.ranking==='left'?'left':duelResult.ranking==='right'?'right':null;
+  const duelIndicator=indicatorRegistry[duelAnchor.indicatorId];
+  const guess=(side:Side)=>{
+    if(duelState!=='ask')return;
+    setDuelGuess(side);
+    setDuelState('reveal');
+    setPairAsked((count)=>count+1);
+    play(duelResult.ranking===side?'win':'lose');
+    if(duelResult.ranking===side)setPairCorrect((count)=>count+1);
+  };
+  const nextDuel=()=>{
+    play('tick');
+    const index=scenes.indexOf(duelAnchor);
+    const anchor=scenes[(index+1)%scenes.length]!;
+    setDuelAnchor(anchor);
+    setDuelOpponent(resolveOpponent(anchor));
+    setDuelState('ask');
+    setDuelGuess(null);
+  };
+  const duelOutcomeText=()=>{
+    if(duelResult.ranking==='same')return `= It's a tie — both regions at ${duelAnchor.value.toFixed(1)}%.`;
+    const high=duelWinnerSide==='left'?duelAnchor:duelOpponent;
+    const low=duelWinnerSide==='left'?duelOpponent:duelAnchor;
+    const correct=duelGuess===duelWinnerSide;
+    return `${correct?'✓ +1':'✗'} — ${high.regionLabel} is higher on ${duelIndicator.name} (${high.value.toFixed(1)}% vs ${low.value.toFixed(1)}%).`;
+  };
+  const atlasComplete=regionsFound.length>=Object.keys(regions).length;
+
+  return <div className="world-app" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
     <a className="skip-link" href="#main">Skip to experience</a>
-    <header className="topbar"><button className="wordmark" onClick={()=>setView('home')} aria-label="Go to home"><i/>ELSEWHERE, NOW</button><nav aria-label="Primary"><button aria-current={view==='scene'} onClick={()=>setView('scene')}><span>Encounter</span></button><button aria-current={view==='compare'} onClick={()=>setView('compare')}><span>Pair</span> <b>{collection.length}</b></button><button aria-current={view==='method'} onClick={()=>setView('method')}><span>Method</span></button></nav><span className={`connection ${online?'online':'offline'}`}>{online?'Live shell':'Offline ready'}</span></header>
     <main id="main" tabIndex={-1}>
       {view==='home'&&<section className="landing">
-        <div className="hero-copy"><p className="section-label"><i/> A live-feeling atlas, without live tracking</p><h1>Right now,<br/><em>elsewhere</em><br/>feels normal.</h1><p className="promise">Step into one ordinary moment on the other side of the world. Pair it with another and notice difference without turning life into a ranking.</p><div className="start-row"><label>Choose your lens<select value={lens} onChange={event=>setLens(event.target.value)}><option value="everyday">Everyday life</option><option value="connection">Connection</option><option value="resources">Resources</option></select></label><button className="primary-action" onClick={begin}>Begin an encounter <span>↗</span></button></div><div className="truth"><strong>Every person is synthetic.</strong><span>No real identity. No live tracking. No location collected.</span></div></div>
-        <figure className="atlas-visual">
-          <img src={earthImage} alt="NASA Earth Observatory composite of Earth at night"/>
-          {motionAllowed&&<video className="orbit-film" autoPlay loop muted playsInline preload="metadata" poster={earthImage} aria-hidden="true"><source src={orbitFilm} type="video/mp4"/></video>}
-          <div className="night-wash"/><div className="scanline"/>
-          <div className="film-kicker"><span><i/> ORBIT / 10 SEC</span><b>LIVE-FEEL · NOT LIVE</b></div>
-          <div className="contrast-cuts" aria-hidden="true">
-            <article className="cut dawn-cut"><small>DAWN / WEST</small><strong>06:12</strong><i/><span>A room turns warm.</span></article>
-            <article className="cut signal-cut"><small>SIGNAL / EAST</small><strong>•••</strong><div><i/><i/><i/><i/></div><span>A message arrives.</span></article>
-            <article className="cut water-cut"><small>PAUSE / SOUTH</small><strong>½</strong><i/><span>A glass waits.</span></article>
+        <figure className="cover">
+          <img src={coverImage} alt="Cover — Migrant Mother, Dorothea Lange (1936)"/>
+          <div className="cover-shade"/>
+          <div className="cover-copy">
+            <h1>Right now, elsewhere, life is ordinary.</h1>
+            <p className="swipe-hint">10 region-matched postcards — swipe up to begin</p>
+            <button className="primary-action" onClick={begin}>Start <span>↗</span></button>
           </div>
-          <div className="orbit orbit-one"/><div className="orbit orbit-two"/><span className="pin p1"/><span className="pin p2"/><span className="pin p3"/><span className="pin p4"/><span className="pin p5"/><span className="pin p6"/>
-          <div className="world-caption"><span>THE WORLD, HELD LIGHTLY</span><strong>48</strong><small>reviewed scenes across 6 broad regions</small></div>
-          <div className="contrast-rail" aria-hidden="true"><span><i/>LIGHT</span><span><i/>DARK</span><span><i/>NEAR</span><span><i/>FAR</span></div>
-          <figcaption>ISS night time-lapse: NASA JSC · edited, muted, visual context only</figcaption>
         </figure>
-        <aside className="edition"><span>EDITION 01 · 27 AUG 2026</span><div><strong>48</strong><small>reviewed scenes</small></div><div><strong>12</strong><small>ordinary-life themes</small></div><p>Public statistics provide context.<br/>They never predict a person.</p></aside>
       </section>}
       {view==='scene'&&<section className="encounter" aria-live="polite">
-        <div className="scene-index"><span>{String(position+1).padStart(2,'0')}</span><i/><small>OF 10 THIS VISIT</small></div>
-        <div className="scene-stage">
-          <div className={`scene-canvas ${sceneMotion}`} role="group" aria-label={`Encounter ${position+1} of ${scenes.length}. Swipe or use arrow keys to move between scenes.`} tabIndex={0} onKeyDown={event=>{if(event.key==='ArrowRight')moveScene(1);if(event.key==='ArrowLeft')moveScene(-1)}} onPointerDown={onPointerDown} onPointerUp={onPointerUp} onPointerCancel={()=>{pointerStart.current=null}}>
-            <img src={earthImage} alt=""/><div className="portrait-wrap"><Portrait scene={scene}/><span className="synthetic-stamp">SYNTHETIC<br/>SCENE</span></div>
-            <div className="frame-meta" aria-hidden="true"><span>ELSEWHERE / FRAME {String(position+1).padStart(2,'0')}</span><span>{scene.localTime}</span></div><p>ONE POSSIBLE MOMENT<br/>NOT A REAL PERSON</p>
-          </div>
-          <div className="scene-transport"><button aria-label="Previous scene" onClick={()=>moveScene(-1)} disabled={sceneMotion!=='idle'}>←</button><span>SWIPE THE FRAME</span><button aria-label="Next scene" onClick={()=>moveScene(1)} disabled={sceneMotion!=='idle'}>→</button></div>
-          <div className="scene-filmstrip" aria-label="This visit's encounters">{scenes.map((item,index)=><button key={item.id} aria-label={`Go to encounter ${index+1}`} aria-current={index===position} onClick={()=>{if(sceneMotion==='idle'&&index!==position){setSceneMotion(index>position?'leaving-next':'leaving-previous');transitionTimer.current=globalThis.setTimeout(()=>{setPosition(index);setSceneMotion(index>position?'entering-next':'entering-previous');transitionTimer.current=globalThis.setTimeout(()=>setSceneMotion('idle'),260)},180)}}}><i style={{background:item.visual.top}}/><span>{String(index+1).padStart(2,'0')}</span></button>)}</div>
+        <div className="scene-index"><span>{String(position+1).padStart(2,'0')}</span><i/><small>OF {scenes.length} THIS VISIT</small></div>
+        <div className="scene-canvas" key={position}>
+          <img src={earthImage} alt=""/><div className="portrait-wrap"><Portrait scene={scene}/><span className="synthetic-stamp">SYNTHETIC<br/>SCENE</span></div>
+          {regionFlash&&<div className="region-toast" aria-hidden="true">✦ New region — {regionFlash}</div>}
         </div>
-        <article className="scene-story"><div className="place-row"><p>{scene.regionLabel}</p><time>{scene.localTime}</time></div><h1>{scene.narrative}</h1><p className="context">This moment was written from a reviewed template. Its appearance is generated independently from region, wealth, religion, and circumstance.</p><SourceNote scene={scene}/>{collection.length>0&&<aside className="pair-dock"><div><small>YOUR CONTACT SHEET</small><strong>{collection.length} moment{collection.length===1?'':'s'} saved on this device</strong></div><button onClick={()=>setView('compare')}>Open pair <span>↗</span></button></aside>}<div className="scene-actions"><button className="primary-action" onClick={next} disabled={sceneMotion!=='idle'}>Meet someone else <span>→</span></button><button onClick={save}>＋ Save for a pair</button><button onClick={sharePair}>Share via Eazo</button></div>{notice&&<p className="scene-notice">{notice}</p>}<button className="text-link" onClick={()=>setView('method')}>Why did this scene appear?</button></article>
+        <article className="scene-story"><p className="how-it-works">✦ Region-matched picture · real indicator · synthetic person — one postcard per region</p><div className="place-row"><p>{scene.regionLabel}</p><time>{scene.localTime}</time></div><SourceNote scene={scene}/><div className="scene-actions"><button onClick={save}>＋ Save</button><button onClick={sharePair}>Share</button></div><div className="scene-progress" role="progressbar" aria-label={`Scene ${position+1} of ${scenes.length}`} aria-valuemin={1} aria-valuemax={scenes.length} aria-valuenow={position+1}><span style={{width:`${((position+1)/scenes.length)*100}%`}}/></div>{position===scenes.length-1?<button className="finish-journey" onClick={()=>{play('journey');setView('summary')}}>Finish journey <span>→</span></button>:<small className="swipe-tip">{atlasComplete?`✦ Atlas complete — all ${Object.keys(regions).length} regions today`:`${regionsFound.length}/${Object.keys(regions).length} regions · swipe to explore`}</small>}</article>
       </section>}
-      {view==='compare'&&<section className="comparison-page"><header><p className="section-label">Two moments, one world</p><h1>Difference without a scoreboard.</h1><p>National indicators provide context. They never decide an individual's story.</p></header><div className="pair-grid"><article className={`pair-primary ${sceneMotion}`}><Portrait scene={scene}/><p className="pair-place">{scene.regionLabel} · {scene.localTime}</p><h2>{scene.narrative}</h2><SourceNote scene={scene}/></article><div className="pair-mark" aria-hidden="true">↔</div><article><Portrait scene={comparison}/><p className="pair-place">{comparison.regionLabel} · {comparison.localTime}</p><h2>{comparison.narrative}</h2><SourceNote scene={comparison}/></article></div><div className="comparison-rule">{comparisonResult.ranking===null?<><strong>No ranking shown</strong><span>{comparisonResult.reasonCode?.replaceAll('_',' ').toLowerCase()}. Each value keeps its own definition and year.</span></>:<><strong>Comparable context, not comparable people</strong><span>Both values use the same definition, unit, and a comparable year. We still do not label either life “higher” or “lower.”</span></>}</div><div className="scene-actions"><button className="primary-action" onClick={sharePair}>Share this pair via Eazo <span>↗</span></button><button onClick={next} disabled={sceneMotion!=='idle'}>Change first scene</button></div></section>}
-      {view==='method'&&<section className="method-page"><header><p className="section-label">Readable by design</p><h1>How the atlas is made.</h1><p>Versioned public statistics set a backdrop. Editorial templates supply an ordinary moment. A local generator creates a non-identifying portrait. None of those layers claims to describe a real person.</p></header><ol className="method-steps"><li><span>01</span><div><strong>Schedule a reviewed template</strong><p>48 templates cover 12 themes. High-sensitivity scenes never appear in the first three encounters.</p></div></li><li><span>02</span><div><strong>Check the evidence</strong><p>A scene is eligible only when its required indicator, definition, year, and license are complete.</p></div></li><li><span>03</span><div><strong>Create an independent portrait</strong><p>Visual seeds never receive region, religion, income, conflict, or user identity fields.</p></div></li><li><span>04</span><div><strong>Explain the limits</strong><p>Country-level estimates are context, not predictions about an individual household.</p></div></li></ol><div className="source-ledger"><div className="ledger-head"><span>INDICATOR</span><span>DEFINITION & COVERAGE</span><span>SOURCE</span></div>{Object.entries(indicatorRegistry).map(([id,item])=><article key={id}><div><code>{id}</code><strong>{item.name}</strong><small>{item.unit} · {item.version}</small></div><p>{item.definition}<small>{item.coverage} {item.transform} {item.rounding}</small></p><a href={item.sourceUrl} target="_blank" rel="noreferrer">World Bank ↗<small>{item.license}</small></a></article>)}</div><div className="build-note"><div><span>CONTENT</span><strong>{templates.length} / 48 reviewed</strong></div><div><span>SNAPSHOT SHA-256</span><code>{SNAPSHOT_SHA256}</code></div><div><span>EAZO RUNTIME</span><strong>{device.platform==='mobile'?'Mobile host connected':'Web fallback active'}</strong></div></div></section>}
+      {view==='compare'&&<section className="comparison-page"><header><p className="section-label">Atlas duel</p><h1>Guess the higher number.</h1><p className="duel-score">SCORE {pairCorrect} · {pairAsked} played · same indicator, same year</p></header>{duelState==='ask'?<p className="duel-prompt">Two regions, one indicator. Which is higher on “{duelIndicator.name}”?</p>:<p className="duel-result">{duelOutcomeText()}<small>Numbers, not verdicts.</small></p>}<div className="pair-grid duel">{duelState==='ask'
+          ?<><DuelCard scene={duelAnchor} hidden onPick={()=>guess('left')}/><div className="pair-mark" aria-hidden="true">vs</div><DuelCard scene={duelOpponent} hidden onPick={()=>guess('right')}/></>
+          :<><DuelCard scene={duelAnchor} winner={duelWinnerSide?duelWinnerSide==='left'?'win':'lose':undefined}/><div className="pair-mark" aria-hidden="true">vs</div><DuelCard scene={duelOpponent} winner={duelWinnerSide?duelWinnerSide==='right'?'win':'lose':undefined}/></>}</div><div className="comparison-rule"><strong>Numbers, not verdicts</strong><span>Same indicator, same definition, same year — the higher value wins this round. We still never label either life “higher” or “lower.”</span></div><div className="scene-actions">{duelState==='reveal'&&<button className="primary-action" onClick={nextDuel}>Next pair <span>→</span></button>}<button onClick={sharePair}>Share this pair via Eazo <span>↗</span></button><button onClick={()=>{setPosition(0);setView('scene')}}>Back to the visit</button></div></section>}
+      {view==='summary'&&<section className="summary-page"><header><p className="section-label">This visit</p><h1>The atlas, in numbers.</h1></header><div className="summary-grid"><div className="summary-stat"><span>{scenes.length}</span><strong>postcards seen</strong></div><div className="summary-stat"><span>{regionsFound.length}/{Object.keys(regions).length}</span><strong>regions discovered</strong></div><div className="summary-stat"><span>{pairCorrect}/{pairAsked}</span><strong>duels won</strong></div><div className="summary-stat"><span>{pairCorrect}</span><strong>duel score</strong></div></div><div className="region-badges">{Object.entries(regions).map(([id,region])=><span key={id} className={`region-badge${regionsFound.includes(id)?' on':''}`}>{region.label}</span>)}</div><p className="summary-note">Every visit reshuffles the atlas. The numbers are real; the people are synthetic; no scene ranks a life.</p><button className="primary-action" onClick={begin}>Begin another visit <span>↗</span></button></section>}
+      {view==='method'&&<section className="method-page"><header><p className="section-label">Readable by design</p><h1>How the atlas is made.</h1></header><ol className="method-steps"><li><span>01</span><div><strong>Reviewed template</strong><p>{templates.length} templates, 12 themes.</p></div></li><li><span>02</span><div><strong>Check evidence</strong><p>Indicator, year and license complete.</p></div></li><li><span>03</span><div><strong>Independent portrait</strong><p>No region, income or identity seeds.</p></div></li><li><span>04</span><div><strong>State the limits</strong><p>Context, never a prediction.</p></div></li></ol><div className="source-ledger"><div className="ledger-head"><span>INDICATOR</span><span>DEFINITION & COVERAGE</span><span>SOURCE</span></div>{Object.entries(indicatorRegistry).map(([id,item])=><article key={id}><div><code>{id}</code><strong>{item.name}</strong><small>{item.unit} · {item.version}</small></div><p>{item.definition}<small>{item.coverage} {item.transform} {item.rounding}</small></p><div><a href={item.sourceUrl} target="_blank" rel="noreferrer">World Bank ↗</a><small>License: {item.license}</small><small>Definition hash: {item.definitionHash}</small></div></article>)}</div><div className="build-note"><div><span>SNAPSHOT</span><strong>{templates.length} / {templates.length} reviewed</strong></div><div><span>DATA VERSION</span><code>{indicatorRegistry['IT.NET.USER.ZS']?.version}</code></div><div><span>SNAPSHOT SHA-256</span><code>{SNAPSHOT_SHA256}</code></div><div><span>RUNTIME</span><strong>{host.mode==='eazo'?'Eazo host bridge active':'Web fallback active'}</strong></div></div></section>}
       <p className="sr-only" role="status">{notice}</p>
     </main>
-    <footer><span>Elsewhere, Now · Eazo Edition 01</span><span>Synthetic scenes · World Bank WDI · CC BY 4.0</span><button onClick={()=>{globalThis.localStorage?.removeItem(COLLECTION_KEY);setCollection([]);setNotice('Local collection cleared.')}}>Clear local data</button></footer>
+    {(view==='scene'||view==='compare'||view==='method')&&<footer><nav aria-label="More pages"><button onClick={()=>setView('compare')}>Pair</button><button onClick={()=>setView('method')}>Method</button><button className={`sound-toggle${soundOn?'':' off'}`} onClick={()=>{const next=!soundOn;setSoundOn(next);setMuted(!next);}} aria-label={soundOn?'Mute sound':'Unmute sound'} aria-pressed={soundOn}>Sound {soundOn?'on':'off'}</button></nav></footer>}
   </div>
 }
